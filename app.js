@@ -1,0 +1,1316 @@
+// HPC Final Exam Prep Application
+// Features: 6 Question Pools (156 Deduplicated Questions), Past Exam Attempt Badges,
+// Question/Option Shuffling, Practice Mode, 50-Q Mock / Full Exam Simulator, Flashcards, Searchable Cheat Sheet
+
+(function() {
+  'use strict';
+
+  const VALID_POOLS = ['all', 'midterm', 'endterm', 'exam_only', 'mistakes', 'samples'];
+
+  // --- STATE ---
+  const state = {
+    activePool: 'all', // 'all' | 'midterm' | 'endterm' | 'exam_only' | 'mistakes' | 'samples'
+    allQuestions: [],
+    questions: [],
+    examQuestions: [],
+    currentPracticeIndex: 0,
+    currentExamIndex: 0,
+    currentFlashcardIndex: 0,
+    activeTab: 'practice',
+    activeTopic: 'all',
+    examMode: '50mock', // '50mock' | 'full'
+    shuffleQuestions: true,
+    shuffleOptions: true,
+    starredIds: new Set(),
+    practiceAnswers: {}, // { [questionId]: { selectedText: string, isCorrect: boolean } }
+    examAnswers: {}, // { [questionId]: selectedText }
+    examActive: false,
+    examTimeRemaining: 45 * 60,
+    examTimerId: null,
+    examSubmitted: false,
+    soundEnabled: true,
+    theme: 'dark'
+  };
+
+  // --- AUDIO SYNTHESIZER (Web Audio API) ---
+  let audioCtx = null;
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) {
+        audioCtx = new AudioContext();
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    return audioCtx;
+  }
+
+  function playSound(type) {
+    if (!state.soundEnabled) return;
+    try {
+      const ctx = getAudioContext();
+      if (!ctx) return;
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(220, now); // A3
+        osc.frequency.setValueAtTime(180, now + 0.12);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'click') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(600, now);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } else if (type === 'shuffle') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, now);
+        osc.frequency.exponentialRampToValueAtTime(800, now + 0.15);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      }
+    } catch (e) {
+      console.warn('Audio playback error', e);
+    }
+  }
+
+  // --- UTILS: SHUFFLING & BADGES ---
+  function fisherYatesShuffle(array) {
+    const arr = [...array];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function prepareQuestionOptions(q, shuffleOpts) {
+    let options = q.options.map(opt => ({ ...opt }));
+    if (shuffleOpts) {
+      options = fisherYatesShuffle(options);
+    }
+    const letters = ['A', 'B', 'C', 'D', 'E'];
+    return options.map((opt, idx) => ({
+      ...opt,
+      displayLetter: letters[idx] || String.fromCharCode(65 + idx)
+    }));
+  }
+
+  function getOriginBadgeText(q) {
+    return q.originBadge || `#${q.id}`;
+  }
+
+  function getTopicIcon(topic) {
+    const map = {
+      'HPC fundamentals': '⚡ ',
+      'Memory and parallel design': '🧠 ',
+      'MPI': '🌐 ',
+      'OpenMP and hybrid programming': '🧵 ',
+      'MapReduce and distributed storage': '🗄️ ',
+      'GPU and CUDA': '🎮 ',
+      'Spark': '🔥 ',
+      'PGAS and UPC': '🧩 ',
+      'Basic graph algorithms': '🕸️ '
+    };
+    return map[topic] || '📌 ';
+  }
+
+  function applyExamStatusBadge(badgeEl, q) {
+    if (!badgeEl) return;
+    if (!q || !q.userExamAttempt) {
+      badgeEl.className = 'badge hidden';
+      badgeEl.textContent = '';
+      return;
+    }
+    if (q.userExamAttempt.isCorrect) {
+      badgeEl.className = 'badge badge-exam-correct';
+      badgeEl.textContent = `✓ Correct in My ${q.userExamAttempt.exam}`;
+    } else {
+      badgeEl.className = 'badge badge-exam-wrong';
+      badgeEl.textContent = `⚠️ Missed in My ${q.userExamAttempt.exam}`;
+    }
+  }
+
+  function buildExplanationHtml(q, includeAnswerPrefix = true) {
+    let html = '';
+    if (includeAnswerPrefix) {
+      html += `<strong>Answer:</strong> ${escapeHtml(q.correctAnswerText)}<br><br>`;
+    }
+    html += escapeHtml(q.explanation);
+    if (q.userExamAttempt && !q.userExamAttempt.isCorrect) {
+      html += `<div class="past-mistake-note"><strong>⚠️ Your Answer in Real ${escapeHtml(q.userExamAttempt.exam)} (Q${q.userExamAttempt.qNum}):</strong> ${escapeHtml(q.userExamAttempt.selectedText)}</div>`;
+    }
+    return html;
+  }
+
+  // --- LOCAL STORAGE ---
+  function loadPersistedState() {
+    try {
+      const savedStarred = localStorage.getItem('hpc_final_starred');
+      if (savedStarred) {
+        state.starredIds = new Set(JSON.parse(savedStarred));
+      }
+      const savedTheme = localStorage.getItem('hpc_final_theme');
+      if (savedTheme) {
+        state.theme = savedTheme;
+        document.documentElement.setAttribute('data-theme', savedTheme);
+      }
+      const savedSound = localStorage.getItem('hpc_final_sound');
+      if (savedSound !== null) {
+        state.soundEnabled = savedSound === 'true';
+      }
+      const savedAnswers = localStorage.getItem('hpc_final_practice_answers');
+      if (savedAnswers) {
+        state.practiceAnswers = JSON.parse(savedAnswers);
+      }
+      const savedPool = localStorage.getItem('hpc_final_active_pool');
+      if (savedPool && VALID_POOLS.includes(savedPool)) {
+        state.activePool = savedPool;
+      }
+      const savedExamMode = localStorage.getItem('hpc_final_exam_mode');
+      if (savedExamMode && ['50mock', 'full'].includes(savedExamMode)) {
+        state.examMode = savedExamMode;
+      }
+    } catch (e) {
+      console.warn('Could not read localStorage', e);
+    }
+  }
+
+  function savePersistedState() {
+    try {
+      localStorage.setItem('hpc_final_starred', JSON.stringify([...state.starredIds]));
+      localStorage.setItem('hpc_final_theme', state.theme);
+      localStorage.setItem('hpc_final_sound', String(state.soundEnabled));
+      localStorage.setItem('hpc_final_practice_answers', JSON.stringify(state.practiceAnswers));
+      localStorage.setItem('hpc_final_active_pool', state.activePool);
+      localStorage.setItem('hpc_final_exam_mode', state.examMode);
+    } catch (e) {
+      console.warn('Could not save to localStorage', e);
+    }
+  }
+
+  // --- POOL & DATA INITIALIZATION ---
+  function getRawQuestionsForActivePool() {
+    if (typeof QUESTION_POOLS !== 'undefined' && QUESTION_POOLS[state.activePool]) {
+      return QUESTION_POOLS[state.activePool].questions;
+    }
+    if (typeof QUESTIONS_DATA !== 'undefined' && Array.isArray(QUESTIONS_DATA)) {
+      return QUESTIONS_DATA;
+    }
+    return [];
+  }
+
+  function switchPool(poolKey) {
+    if (!VALID_POOLS.includes(poolKey)) return;
+    playSound('click');
+    state.activePool = poolKey;
+    state.activeTopic = 'all';
+    savePersistedState();
+
+    document.querySelectorAll('#poolSelectorButtons .pool-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.pool === poolKey);
+    });
+
+    initData();
+  }
+
+  function initData() {
+    const raw = getRawQuestionsForActivePool();
+    state.allQuestions = raw.map(q => ({
+      ...q,
+      currentOptions: prepareQuestionOptions(q, state.shuffleOptions)
+    }));
+
+    renderTopicFilters();
+    applyFilteringAndShuffling();
+    updateStarredCount();
+    updateThemeUI();
+    updateSoundUI();
+
+    if (state.activeTab === 'practice') {
+      renderCurrentPracticeQuestion();
+    } else if (state.activeTab === 'exam') {
+      initExam();
+    } else if (state.activeTab === 'flashcards') {
+      renderCurrentFlashcard();
+    } else if (state.activeTab === 'list') {
+      renderQuestionsList();
+    }
+
+    if (state.activeTab !== 'exam') {
+      clearInterval(state.examTimerId);
+      state.examActive = false;
+      state.examSubmitted = false;
+    }
+  }
+
+  // --- DYNAMIC TOPIC FILTERS RENDERING ---
+  function renderTopicFilters() {
+    const container = document.getElementById('topicFilters');
+    if (!container) return;
+
+    const topicCounts = {};
+    state.allQuestions.forEach(q => {
+      topicCounts[q.topic] = (topicCounts[q.topic] || 0) + 1;
+    });
+
+    container.innerHTML = '';
+
+    const allBtn = document.createElement('button');
+    allBtn.className = `filter-pill ${state.activeTopic === 'all' ? 'active' : ''}`;
+    allBtn.dataset.topic = 'all';
+    allBtn.textContent = `All Topics (${state.allQuestions.length})`;
+    allBtn.addEventListener('click', () => handleTopicSelect('all'));
+    container.appendChild(allBtn);
+
+    for (const [topic, count] of Object.entries(topicCounts)) {
+      const pill = document.createElement('button');
+      pill.className = `filter-pill ${state.activeTopic === topic ? 'active' : ''}`;
+      pill.dataset.topic = topic;
+      pill.textContent = `${getTopicIcon(topic)}${topic} (${count})`;
+      pill.addEventListener('click', () => handleTopicSelect(topic));
+      container.appendChild(pill);
+    }
+
+    const starBtn = document.createElement('button');
+    starBtn.className = `filter-pill ${state.activeTopic === 'starred' ? 'active' : ''}`;
+    starBtn.dataset.topic = 'starred';
+    starBtn.innerHTML = `⭐ Starred (<span id="starredCount">${state.starredIds.size}</span>)`;
+    starBtn.addEventListener('click', () => handleTopicSelect('starred'));
+    container.appendChild(starBtn);
+  }
+
+  function handleTopicSelect(topic) {
+    playSound('click');
+    state.activeTopic = topic;
+    document.querySelectorAll('#topicFilters .filter-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.topic === topic);
+    });
+
+    applyFilteringAndShuffling();
+
+    if (state.activeTab === 'practice') {
+      renderCurrentPracticeQuestion();
+    } else if (state.activeTab === 'flashcards') {
+      renderCurrentFlashcard();
+    } else if (state.activeTab === 'list') {
+      renderQuestionsList();
+    } else if (state.activeTab === 'exam') {
+      initExam();
+    }
+
+    if (state.activeTab !== 'exam') {
+      clearInterval(state.examTimerId);
+      state.examActive = false;
+      state.examSubmitted = false;
+    }
+  }
+
+  function applyFilteringAndShuffling() {
+    let pool = [...state.allQuestions];
+
+    if (state.activeTopic === 'starred') {
+      pool = pool.filter(q => state.starredIds.has(q.id));
+    } else if (state.activeTopic !== 'all') {
+      pool = pool.filter(q => q.topic === state.activeTopic);
+    }
+
+    if (state.shuffleQuestions) {
+      pool = fisherYatesShuffle(pool);
+    } else {
+      pool.sort((a, b) => a.id - b.id);
+    }
+
+    pool.forEach(q => {
+      q.currentOptions = prepareQuestionOptions(q, state.shuffleOptions);
+    });
+
+    state.questions = pool;
+    state.currentPracticeIndex = 0;
+    state.currentExamIndex = 0;
+    state.currentFlashcardIndex = 0;
+  }
+
+  function reshuffleAll() {
+    playSound('shuffle');
+    state.allQuestions.forEach(q => {
+      q.currentOptions = prepareQuestionOptions(q, state.shuffleOptions);
+    });
+    applyFilteringAndShuffling();
+    if (state.activeTab === 'practice') {
+      renderCurrentPracticeQuestion();
+    } else if (state.activeTab === 'exam') {
+      if (!state.examSubmitted) {
+        initExam();
+      }
+    } else if (state.activeTab === 'flashcards') {
+      renderCurrentFlashcard();
+    } else if (state.activeTab === 'list') {
+      renderQuestionsList();
+    }
+  }
+
+  // --- PRACTICE MODE RENDERING ---
+  function renderCurrentPracticeQuestion() {
+    const qText = document.getElementById('practiceQuestionText');
+    const optList = document.getElementById('practiceOptionsList');
+    const explBox = document.getElementById('practiceExplanationBox');
+    const explText = document.getElementById('practiceExplanationText');
+    const countBadge = document.getElementById('practiceCounterBadge');
+    const topicBadge = document.getElementById('practiceTopicBadge');
+    const origBadge = document.getElementById('practiceOriginalBadge');
+    const examStatusBadge = document.getElementById('practiceExamStatusBadge');
+    const starBtn = document.getElementById('practiceStarBtn');
+    const prevBtn = document.getElementById('practicePrevBtn');
+    const nextBtn = document.getElementById('practiceNextBtn');
+    const progFill = document.getElementById('practiceProgressFill');
+    const retryBtn = document.getElementById('practiceRetryBtn');
+
+    if (state.questions.length === 0) {
+      qText.innerHTML = '<em>No questions available in this category.</em>';
+      optList.innerHTML = '';
+      explBox.classList.add('hidden');
+      countBadge.textContent = '0 / 0';
+      topicBadge.textContent = state.activeTopic;
+      origBadge.textContent = '';
+      applyExamStatusBadge(examStatusBadge, null);
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      retryBtn.classList.add('hidden');
+      progFill.style.width = '0%';
+      return;
+    }
+
+    if (state.currentPracticeIndex >= state.questions.length) {
+      state.currentPracticeIndex = 0;
+    }
+
+    const q = state.questions[state.currentPracticeIndex];
+    const total = state.questions.length;
+    const currentNum = state.currentPracticeIndex + 1;
+
+    countBadge.textContent = `Question ${currentNum} / ${total}`;
+    topicBadge.textContent = q.topic;
+    origBadge.textContent = getOriginBadgeText(q);
+    applyExamStatusBadge(examStatusBadge, q);
+    starBtn.classList.toggle('starred', state.starredIds.has(q.id));
+    progFill.style.width = `${(currentNum / total) * 100}%`;
+
+    prevBtn.disabled = state.currentPracticeIndex === 0;
+    nextBtn.disabled = state.currentPracticeIndex === total - 1;
+
+    qText.innerHTML = formatQuestionText(q.question);
+    optList.innerHTML = '';
+    const answeredState = state.practiceAnswers[q.id];
+
+    if (answeredState) {
+      explBox.classList.remove('hidden');
+      explText.innerHTML = buildExplanationHtml(q, true);
+      retryBtn.classList.remove('hidden');
+    } else {
+      explBox.classList.add('hidden');
+      retryBtn.classList.add('hidden');
+    }
+
+    q.currentOptions.forEach(opt => {
+      const item = document.createElement('div');
+      item.className = 'option-item';
+
+      const isCorrect = opt.text === q.correctAnswerText;
+      const isSelected = answeredState && answeredState.selectedText === opt.text;
+
+      if (answeredState) {
+        item.classList.add('disabled');
+        if (isCorrect) {
+          item.classList.add('correct');
+        } else if (isSelected && !isCorrect) {
+          item.classList.add('wrong');
+        }
+      }
+
+      const letterEl = document.createElement('div');
+      letterEl.className = 'option-letter';
+      letterEl.textContent = opt.displayLetter;
+
+      const textEl = document.createElement('div');
+      textEl.className = 'option-text';
+      textEl.textContent = opt.text;
+
+      item.appendChild(letterEl);
+      item.appendChild(textEl);
+
+      if (answeredState) {
+        const iconEl = document.createElement('div');
+        iconEl.className = 'option-status-icon';
+        if (isCorrect) {
+          iconEl.textContent = '✓';
+        } else if (isSelected) {
+          iconEl.textContent = '✕';
+        }
+        item.appendChild(iconEl);
+      }
+
+      item.addEventListener('click', () => {
+        if (!state.practiceAnswers[q.id]) {
+          handlePracticeAnswer(q, opt.text);
+        }
+      });
+
+      optList.appendChild(item);
+    });
+  }
+
+  function handlePracticeAnswer(q, selectedText) {
+    const isCorrect = selectedText === q.correctAnswerText;
+    state.practiceAnswers[q.id] = {
+      selectedText,
+      isCorrect
+    };
+    savePersistedState();
+    playSound(isCorrect ? 'correct' : 'wrong');
+    renderCurrentPracticeQuestion();
+  }
+
+  function retryPracticeQuestion() {
+    const q = state.questions[state.currentPracticeIndex];
+    if (q && state.practiceAnswers[q.id]) {
+      delete state.practiceAnswers[q.id];
+      savePersistedState();
+      playSound('click');
+      renderCurrentPracticeQuestion();
+    }
+  }
+
+  // --- EXAM MODE RENDERING ---
+  function initExam() {
+    state.examActive = true;
+    state.examSubmitted = false;
+    state.examAnswers = {};
+
+    let examPool = [...state.questions];
+    if (state.examMode === '50mock' && examPool.length > 50) {
+      examPool = fisherYatesShuffle(examPool).slice(0, 50);
+    }
+    examPool.forEach(q => {
+      q.currentOptions = prepareQuestionOptions(q, state.shuffleOptions);
+    });
+    state.examQuestions = examPool;
+
+    const totalQ = state.examQuestions.length;
+    let mins = 45;
+    if (totalQ === 0) mins = 0;
+    else if (totalQ <= 20) mins = 20;
+    else if (totalQ <= 40) mins = 35;
+    else if (totalQ <= 50) mins = 45;
+    else if (totalQ <= 80) mins = 70;
+    else mins = Math.ceil(totalQ * 0.9);
+
+    state.examTimeRemaining = mins * 60;
+    state.currentExamIndex = 0;
+
+    document.getElementById('examActiveView').classList.remove('hidden');
+    document.getElementById('examResultView').classList.add('hidden');
+
+    startExamTimer();
+    renderExamGrid();
+    renderCurrentExamQuestion();
+  }
+
+  function startExamTimer() {
+    clearInterval(state.examTimerId);
+    updateTimerDisplay();
+
+    if (state.examQuestions.length === 0) return;
+
+    state.examTimerId = setInterval(() => {
+      if (state.examTimeRemaining > 0) {
+        state.examTimeRemaining--;
+        updateTimerDisplay();
+      } else {
+        clearInterval(state.examTimerId);
+        submitExam(true);
+      }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const timerEl = document.getElementById('examTimer');
+    const mins = Math.floor(state.examTimeRemaining / 60);
+    const secs = state.examTimeRemaining % 60;
+    const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    timerEl.textContent = `⏱️ ${formatted}`;
+    if (state.examTimeRemaining > 0 && state.examTimeRemaining < 300) {
+      timerEl.classList.add('warning');
+    } else {
+      timerEl.classList.remove('warning');
+    }
+  }
+
+  function renderExamGrid() {
+    const grid = document.getElementById('examNavGrid');
+    grid.innerHTML = '';
+
+    state.examQuestions.forEach((q, idx) => {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell';
+      cell.textContent = idx + 1;
+
+      if (idx === state.currentExamIndex) {
+        cell.classList.add('active');
+      }
+      if (state.examAnswers[q.id] !== undefined) {
+        cell.classList.add('answered');
+      }
+      if (state.starredIds.has(q.id)) {
+        cell.classList.add('flagged');
+      }
+
+      cell.addEventListener('click', () => {
+        state.currentExamIndex = idx;
+        renderCurrentExamQuestion();
+        renderExamGrid();
+      });
+
+      grid.appendChild(cell);
+    });
+
+    const answeredCount = Object.keys(state.examAnswers).length;
+    document.getElementById('examAnsweredStats').textContent = `Answered: ${answeredCount} / ${state.examQuestions.length}`;
+    const fill = document.getElementById('examProgressFill');
+    fill.style.width = state.examQuestions.length > 0
+      ? `${(answeredCount / state.examQuestions.length) * 100}%`
+      : '0%';
+  }
+
+  function renderCurrentExamQuestion() {
+    const qText = document.getElementById('examQuestionText');
+    const optList = document.getElementById('examOptionsList');
+    const countBadge = document.getElementById('examCounterBadge');
+    const topicBadge = document.getElementById('examTopicBadge');
+    const starBtn = document.getElementById('examStarBtn');
+    const prevBtn = document.getElementById('examPrevBtn');
+    const nextBtn = document.getElementById('examNextBtn');
+
+    if (state.examQuestions.length === 0) {
+      qText.innerHTML = '<em>No questions available in this category for an exam.</em>';
+      optList.innerHTML = '';
+      countBadge.textContent = '0 / 0';
+      topicBadge.textContent = state.activeTopic;
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+
+    const q = state.examQuestions[state.currentExamIndex];
+    const total = state.examQuestions.length;
+    const currentNum = state.currentExamIndex + 1;
+
+    countBadge.textContent = `Question ${currentNum} / ${total}`;
+    topicBadge.textContent = q.topic;
+    starBtn.classList.toggle('starred', state.starredIds.has(q.id));
+
+    prevBtn.disabled = state.currentExamIndex === 0;
+    nextBtn.disabled = state.currentExamIndex === total - 1;
+
+    qText.innerHTML = formatQuestionText(q.question);
+    optList.innerHTML = '';
+
+    const currentSelected = state.examAnswers[q.id];
+
+    q.currentOptions.forEach(opt => {
+      const item = document.createElement('div');
+      item.className = 'option-item';
+      if (currentSelected === opt.text) {
+        item.style.borderColor = 'var(--accent-primary)';
+        item.style.background = 'rgba(59, 130, 246, 0.15)';
+      }
+
+      const letterEl = document.createElement('div');
+      letterEl.className = 'option-letter';
+      letterEl.textContent = opt.displayLetter;
+
+      const textEl = document.createElement('div');
+      textEl.className = 'option-text';
+      textEl.textContent = opt.text;
+
+      item.appendChild(letterEl);
+      item.appendChild(textEl);
+
+      item.addEventListener('click', () => {
+        playSound('click');
+        state.examAnswers[q.id] = opt.text;
+        renderExamGrid();
+        renderCurrentExamQuestion();
+      });
+
+      optList.appendChild(item);
+    });
+  }
+
+  function submitExam(isAuto = false) {
+    if (state.examQuestions.length === 0) return;
+    if (!isAuto) {
+      const answeredCount = Object.keys(state.examAnswers).length;
+      const total = state.examQuestions.length;
+      const unanswered = total - answeredCount;
+      if (unanswered > 0) {
+        showModal('Submit Exam?', `You still have ${unanswered} unanswered question(s). Are you sure you want to finish the exam?`, () => {
+          finalizeExamResults();
+        });
+        return;
+      }
+    }
+    finalizeExamResults();
+  }
+
+  function finalizeExamResults() {
+    clearInterval(state.examTimerId);
+    state.examActive = false;
+    state.examSubmitted = true;
+
+    let score = 0;
+    const total = state.examQuestions.length;
+    const topicStats = {};
+
+    state.examQuestions.forEach(q => {
+      if (!topicStats[q.topic]) {
+        topicStats[q.topic] = { correct: 0, total: 0 };
+      }
+      topicStats[q.topic].total++;
+
+      const selected = state.examAnswers[q.id];
+      if (selected === q.correctAnswerText) {
+        score++;
+        topicStats[q.topic].correct++;
+      }
+    });
+
+    const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+
+    document.getElementById('examActiveView').classList.add('hidden');
+    document.getElementById('examResultView').classList.remove('hidden');
+
+    document.getElementById('resultScore').textContent = `${score}/${total}`;
+    document.getElementById('resultPercentage').textContent = `${percentage}%`;
+
+    let title = 'Great Job!';
+    let desc = `You completed the test with a score of ${score} out of ${total}.`;
+    if (percentage >= 90) {
+      title = '🏆 Outstanding! Ready to Ace the Final!';
+      playSound('correct');
+    } else if (percentage >= 70) {
+      title = '👍 Well Done! Almost Exam Ready!';
+      playSound('correct');
+    } else {
+      title = '💪 Keep Practicing!';
+      desc += ' Review your mistakes and try again.';
+      playSound('wrong');
+    }
+
+    document.getElementById('resultTitle').textContent = title;
+    document.getElementById('resultMessage').textContent = desc;
+
+    const breakdownEl = document.getElementById('topicBreakdown');
+    breakdownEl.innerHTML = '<h4 style="margin-bottom: 0.75rem;">Topic Breakdown:</h4>';
+
+    for (const [topic, stats] of Object.entries(topicStats)) {
+      const pct = Math.round((stats.correct / stats.total) * 100);
+      const row = document.createElement('div');
+      row.className = 'breakdown-item';
+      row.innerHTML = `
+        <span>${escapeHtml(topic)}</span>
+        <span style="font-weight: 700; color: ${pct >= 70 ? 'var(--success)' : 'var(--error)'}">
+          ${stats.correct} / ${stats.total} (${pct}%)
+        </span>
+      `;
+      breakdownEl.appendChild(row);
+    }
+  }
+
+  // --- FLASHCARDS MODE RENDERING ---
+  function renderCurrentFlashcard() {
+    const qEl = document.getElementById('flashcardQuestion');
+    const aEl = document.getElementById('flashcardAnswer');
+    const expEl = document.getElementById('flashcardExplanation');
+    const frontEl = document.getElementById('flashcardFront');
+    const backEl = document.getElementById('flashcardBack');
+    const countBadge = document.getElementById('flashcardCounterBadge');
+    const topicBadge = document.getElementById('flashcardTopicBadge');
+    const origBadge = document.getElementById('flashcardOriginalBadge');
+    const examStatusBadge = document.getElementById('flashcardExamStatusBadge');
+    const starBtn = document.getElementById('flashcardStarBtn');
+    const prevBtn = document.getElementById('flashcardPrevBtn');
+    const nextBtn = document.getElementById('flashcardNextBtn');
+
+    if (state.questions.length === 0) {
+      qEl.innerHTML = '<em>No flashcards available in this category.</em>';
+      countBadge.textContent = '0 / 0';
+      topicBadge.textContent = state.activeTopic;
+      origBadge.textContent = '';
+      applyExamStatusBadge(examStatusBadge, null);
+      frontEl.classList.remove('hidden');
+      backEl.classList.add('hidden');
+      prevBtn.disabled = true;
+      nextBtn.disabled = true;
+      return;
+    }
+
+    if (state.currentFlashcardIndex >= state.questions.length) {
+      state.currentFlashcardIndex = 0;
+    }
+
+    const q = state.questions[state.currentFlashcardIndex];
+    const total = state.questions.length;
+    const currentNum = state.currentFlashcardIndex + 1;
+
+    countBadge.textContent = `Card ${currentNum} / ${total}`;
+    topicBadge.textContent = q.topic;
+    origBadge.textContent = getOriginBadgeText(q);
+    applyExamStatusBadge(examStatusBadge, q);
+    starBtn.classList.toggle('starred', state.starredIds.has(q.id));
+
+    prevBtn.disabled = state.currentFlashcardIndex === 0;
+    nextBtn.disabled = state.currentFlashcardIndex === total - 1;
+
+    frontEl.classList.remove('hidden');
+    backEl.classList.add('hidden');
+
+    qEl.innerHTML = formatQuestionText(q.question);
+    aEl.textContent = q.correctAnswerText;
+    expEl.innerHTML = `<strong>Concept:</strong> ${buildExplanationHtml(q, false)}`;
+  }
+
+  function toggleFlashcard() {
+    if (state.questions.length === 0) return;
+    const frontEl = document.getElementById('flashcardFront');
+    const backEl = document.getElementById('flashcardBack');
+    const isShowingBack = !backEl.classList.contains('hidden');
+
+    playSound('click');
+    if (isShowingBack) {
+      frontEl.classList.remove('hidden');
+      backEl.classList.add('hidden');
+    } else {
+      frontEl.classList.add('hidden');
+      backEl.classList.remove('hidden');
+    }
+  }
+
+  // --- LIST / CHEAT SHEET MODE RENDERING ---
+  let showAllAnswersInList = false;
+
+  function renderQuestionsList() {
+    const container = document.getElementById('questionsListContainer');
+    const statsText = document.getElementById('listStatsText');
+    const searchFilter = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+
+    let list = [...state.allQuestions];
+
+    if (state.activeTopic === 'starred') {
+      list = list.filter(q => state.starredIds.has(q.id));
+    } else if (state.activeTopic !== 'all') {
+      list = list.filter(q => q.topic === state.activeTopic);
+    }
+
+    if (searchFilter) {
+      list = list.filter(q => {
+        const inQ = q.question.toLowerCase().includes(searchFilter);
+        const inExp = q.explanation.toLowerCase().includes(searchFilter);
+        const inTopic = q.topic.toLowerCase().includes(searchFilter);
+        const inOrigin = getOriginBadgeText(q).toLowerCase().includes(searchFilter);
+        const inOpts = q.options.some(o => o.text.toLowerCase().includes(searchFilter));
+        return inQ || inExp || inTopic || inOrigin || inOpts;
+      });
+    }
+
+    statsText.textContent = `Showing ${list.length} question(s)`;
+    container.innerHTML = '';
+
+    if (list.length === 0) {
+      container.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 2rem;">No questions matching your search.</div>';
+      return;
+    }
+
+    list.forEach(q => {
+      const item = document.createElement('div');
+      item.className = 'review-item';
+
+      const isStarred = state.starredIds.has(q.id);
+      let examBadgeHtml = '';
+      if (q.userExamAttempt) {
+        if (q.userExamAttempt.isCorrect) {
+          examBadgeHtml = `<span class="badge badge-exam-correct">✓ Correct in My ${escapeHtml(q.userExamAttempt.exam)}</span>`;
+        } else {
+          examBadgeHtml = `<span class="badge badge-exam-wrong">⚠️ Missed in My ${escapeHtml(q.userExamAttempt.exam)}</span>`;
+        }
+      }
+
+      const header = document.createElement('div');
+      header.className = 'review-item-header';
+      header.innerHTML = `
+        <div class="meta-badges">
+          <span class="badge badge-source">${escapeHtml(getOriginBadgeText(q))}</span>
+          <span class="badge badge-topic">${escapeHtml(q.topic)}</span>
+          ${examBadgeHtml}
+        </div>
+        <button class="star-btn ${isStarred ? 'starred' : ''}" data-id="${q.id}">★</button>
+      `;
+
+      const qText = document.createElement('div');
+      qText.style.fontWeight = '600';
+      qText.style.marginBottom = '1rem';
+      qText.innerHTML = formatQuestionText(q.question);
+
+      const optsDiv = document.createElement('div');
+      optsDiv.style.display = 'flex';
+      optsDiv.style.flexDirection = 'column';
+      optsDiv.style.gap = '0.4rem';
+      optsDiv.style.marginBottom = '0.75rem';
+
+      q.options.forEach(opt => {
+        const isCorrect = opt.text === q.correctAnswerText;
+        const optRow = document.createElement('div');
+        optRow.style.padding = '0.45rem 0.75rem';
+        optRow.style.borderRadius = '6px';
+        optRow.style.fontSize = '0.9rem';
+        optRow.style.border = '1px solid var(--border-color)';
+        optRow.style.background = (showAllAnswersInList && isCorrect) ? 'var(--success-bg)' : 'var(--bg-secondary)';
+        if (showAllAnswersInList && isCorrect) {
+          optRow.style.borderColor = 'var(--success-border)';
+          optRow.style.fontWeight = '600';
+        }
+
+        optRow.innerHTML = `<strong>${opt.id}.</strong> ${escapeHtml(opt.text)} ${showAllAnswersInList && isCorrect ? ' <span style="color: var(--success)">✓</span>' : ''}`;
+        optsDiv.appendChild(optRow);
+      });
+
+      const explDiv = document.createElement('div');
+      explDiv.className = 'explanation-box';
+      if (!showAllAnswersInList) explDiv.classList.add('hidden');
+      explDiv.innerHTML = `<strong>Correct Answer:</strong> ${escapeHtml(q.correctOptionId)}. ${escapeHtml(q.correctAnswerText)}<br><br>${buildExplanationHtml(q, false)}`;
+
+      item.appendChild(header);
+      item.appendChild(qText);
+      item.appendChild(optsDiv);
+      item.appendChild(explDiv);
+
+      const starBtn = header.querySelector('.star-btn');
+      starBtn.addEventListener('click', () => {
+        toggleStar(q.id);
+        renderQuestionsList();
+      });
+
+      container.appendChild(item);
+    });
+  }
+
+  // --- HELPERS ---
+  function formatQuestionText(text) {
+    if (!text) return '';
+    if (text.includes('```')) {
+      const parts = text.split(/```(?:c|cpp)?/);
+      let html = escapeHtml(parts[0]);
+      if (parts.length > 1) {
+        const codeParts = parts[1].split('```');
+        html += `<pre><code>${escapeHtml(codeParts[0].trim())}</code></pre>`;
+        if (codeParts[1]) {
+          html += escapeHtml(codeParts[1]);
+        }
+      }
+      return html;
+    }
+    return escapeHtml(text);
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  function toggleStar(questionId) {
+    if (state.starredIds.has(questionId)) {
+      state.starredIds.delete(questionId);
+    } else {
+      state.starredIds.add(questionId);
+      playSound('click');
+    }
+    savePersistedState();
+    updateStarredCount();
+
+    if (state.activeTopic === 'starred') {
+      applyFilteringAndShuffling();
+    }
+
+    if (state.activeTab === 'practice') {
+      renderCurrentPracticeQuestion();
+    } else if (state.activeTab === 'exam') {
+      renderCurrentExamQuestion();
+      renderExamGrid();
+    } else if (state.activeTab === 'flashcards') {
+      renderCurrentFlashcard();
+    }
+  }
+
+  function updateStarredCount() {
+    const el = document.getElementById('starredCount');
+    if (el) el.textContent = state.starredIds.size;
+  }
+
+  function updateThemeUI() {
+    const btn = document.getElementById('themeToggleBtn');
+    btn.textContent = state.theme === 'dark' ? '☀️' : '🌙';
+  }
+
+  function updateSoundUI() {
+    const btn = document.getElementById('soundToggleBtn');
+    btn.textContent = state.soundEnabled ? '🔊' : '🔇';
+    btn.classList.toggle('active', state.soundEnabled);
+  }
+
+  function showModal(title, message, onConfirm) {
+    const modal = document.getElementById('confirmModal');
+    document.getElementById('modalTitle').textContent = title;
+    document.getElementById('modalBody').textContent = message;
+    modal.classList.remove('hidden');
+
+    const confirmBtn = document.getElementById('modalConfirmBtn');
+    const cancelBtn = document.getElementById('modalCancelBtn');
+
+    const handleConfirm = () => {
+      modal.classList.add('hidden');
+      confirmBtn.removeEventListener('click', handleConfirm);
+      cancelBtn.removeEventListener('click', handleCancel);
+      if (onConfirm) onConfirm();
+    };
+
+    const handleCancel = () => {
+      modal.classList.add('hidden');
+      confirmBtn.removeEventListener('click', handleConfirm);
+      cancelBtn.removeEventListener('click', handleCancel);
+    };
+
+    confirmBtn.addEventListener('click', handleConfirm);
+    cancelBtn.addEventListener('click', handleCancel);
+  }
+
+  // --- EVENT LISTENERS SETUP ---
+  function setupEvents() {
+    // Pool switcher buttons
+    document.querySelectorAll('#poolSelectorButtons .pool-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const pool = btn.dataset.pool;
+        if (pool !== state.activePool) {
+          switchPool(pool);
+        }
+      });
+    });
+
+    // Nav tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        playSound('click');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        state.activeTab = tab;
+
+        document.getElementById('practiceTab').classList.toggle('hidden', tab !== 'practice');
+        document.getElementById('examTab').classList.toggle('hidden', tab !== 'exam');
+        document.getElementById('flashcardsTab').classList.toggle('hidden', tab !== 'flashcards');
+        document.getElementById('listTab').classList.toggle('hidden', tab !== 'list');
+
+        if (tab === 'practice') {
+          renderCurrentPracticeQuestion();
+        } else if (tab === 'exam') {
+          if (!state.examActive && !state.examSubmitted) {
+            initExam();
+          }
+        } else if (tab === 'flashcards') {
+          renderCurrentFlashcard();
+        } else if (tab === 'list') {
+          renderQuestionsList();
+        }
+      });
+    });
+
+    // Shuffling toggles & buttons
+    const shuffleQuestionsToggle = document.getElementById('shuffleQuestionsToggle');
+    const shuffleOptionsToggle = document.getElementById('shuffleOptionsToggle');
+    const reshuffleBtn = document.getElementById('reshuffleBtn');
+    const originalOrderBtn = document.getElementById('originalOrderBtn');
+
+    shuffleQuestionsToggle.addEventListener('change', (e) => {
+      state.shuffleQuestions = e.target.checked;
+      applyFilteringAndShuffling();
+      if (state.activeTab === 'practice') renderCurrentPracticeQuestion();
+      else if (state.activeTab === 'flashcards') renderCurrentFlashcard();
+    });
+
+    shuffleOptionsToggle.addEventListener('change', (e) => {
+      state.shuffleOptions = e.target.checked;
+      reshuffleAll();
+    });
+
+    reshuffleBtn.addEventListener('click', () => {
+      reshuffleAll();
+    });
+
+    originalOrderBtn.addEventListener('click', () => {
+      playSound('click');
+      shuffleQuestionsToggle.checked = false;
+      shuffleOptionsToggle.checked = false;
+      state.shuffleQuestions = false;
+      state.shuffleOptions = false;
+      applyFilteringAndShuffling();
+      if (state.activeTab === 'practice') {
+        renderCurrentPracticeQuestion();
+      } else if (state.activeTab === 'flashcards') {
+        renderCurrentFlashcard();
+      } else if (state.activeTab === 'list') {
+        renderQuestionsList();
+      } else if (state.activeTab === 'exam' && !state.examSubmitted) {
+        initExam();
+      }
+    });
+
+    // Theme & sound toggles
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      playSound('click');
+      state.theme = state.theme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', state.theme);
+      updateThemeUI();
+      savePersistedState();
+    });
+
+    document.getElementById('soundToggleBtn').addEventListener('click', () => {
+      state.soundEnabled = !state.soundEnabled;
+      updateSoundUI();
+      savePersistedState();
+      playSound('click');
+    });
+
+    document.getElementById('resetProgressBtn').addEventListener('click', () => {
+      showModal('Reset All Progress?', 'This will clear all your answered questions and statistics for this session.', () => {
+        state.practiceAnswers = {};
+        state.examAnswers = {};
+        savePersistedState();
+        playSound('click');
+        if (state.activeTab === 'practice') renderCurrentPracticeQuestion();
+        if (state.activeTab === 'exam') initExam();
+      });
+    });
+
+    // Practice controls
+    document.getElementById('practicePrevBtn').addEventListener('click', () => {
+      if (state.currentPracticeIndex > 0) {
+        playSound('click');
+        state.currentPracticeIndex--;
+        renderCurrentPracticeQuestion();
+      }
+    });
+
+    document.getElementById('practiceNextBtn').addEventListener('click', () => {
+      if (state.currentPracticeIndex < state.questions.length - 1) {
+        playSound('click');
+        state.currentPracticeIndex++;
+        renderCurrentPracticeQuestion();
+      }
+    });
+
+    document.getElementById('practiceStarBtn').addEventListener('click', () => {
+      const q = state.questions[state.currentPracticeIndex];
+      if (q) toggleStar(q.id);
+    });
+
+    document.getElementById('practiceRetryBtn').addEventListener('click', () => {
+      retryPracticeQuestion();
+    });
+
+    // Exam controls
+    const examModeSelect = document.getElementById('examModeSelect');
+    examModeSelect.value = state.examMode;
+    examModeSelect.addEventListener('change', (e) => {
+      playSound('click');
+      state.examMode = e.target.value;
+      savePersistedState();
+      initExam();
+    });
+
+    document.getElementById('examPrevBtn').addEventListener('click', () => {
+      if (state.currentExamIndex > 0) {
+        playSound('click');
+        state.currentExamIndex--;
+        renderCurrentExamQuestion();
+        renderExamGrid();
+      }
+    });
+
+    document.getElementById('examNextBtn').addEventListener('click', () => {
+      if (state.currentExamIndex < state.examQuestions.length - 1) {
+        playSound('click');
+        state.currentExamIndex++;
+        renderCurrentExamQuestion();
+        renderExamGrid();
+      }
+    });
+
+    document.getElementById('examStarBtn').addEventListener('click', () => {
+      const q = state.examQuestions[state.currentExamIndex];
+      if (q) toggleStar(q.id);
+    });
+
+    document.getElementById('finishExamBtn').addEventListener('click', () => {
+      submitExam(false);
+    });
+
+    document.getElementById('retakeExamBtn').addEventListener('click', () => {
+      initExam();
+    });
+
+    document.getElementById('practiceMissedBtn').addEventListener('click', () => {
+      const missed = state.examQuestions.filter(q => state.examAnswers[q.id] !== q.correctAnswerText);
+      if (missed.length > 0) {
+        missed.forEach(q => {
+          delete state.practiceAnswers[q.id];
+        });
+        savePersistedState();
+        state.questions = missed;
+        state.currentPracticeIndex = 0;
+        document.querySelector('.tab-btn[data-tab="practice"]').click();
+      } else {
+        alert('You got 100%! No missed questions.');
+      }
+    });
+
+    document.getElementById('backToPracticeBtn').addEventListener('click', () => {
+      document.querySelector('.tab-btn[data-tab="practice"]').click();
+    });
+
+    // Flashcard controls
+    document.getElementById('flashcardCard').addEventListener('click', () => {
+      toggleFlashcard();
+    });
+
+    document.getElementById('flashcardFlipBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFlashcard();
+    });
+
+    document.getElementById('flashcardStarBtn').addEventListener('click', () => {
+      const q = state.questions[state.currentFlashcardIndex];
+      if (q) toggleStar(q.id);
+    });
+
+    document.getElementById('flashcardPrevBtn').addEventListener('click', () => {
+      if (state.currentFlashcardIndex > 0) {
+        playSound('click');
+        state.currentFlashcardIndex--;
+        renderCurrentFlashcard();
+      }
+    });
+
+    document.getElementById('flashcardNextBtn').addEventListener('click', () => {
+      if (state.currentFlashcardIndex < state.questions.length - 1) {
+        playSound('click');
+        state.currentFlashcardIndex++;
+        renderCurrentFlashcard();
+      }
+    });
+
+    // List controls
+    document.getElementById('searchInput').addEventListener('input', () => {
+      renderQuestionsList();
+    });
+
+    document.getElementById('toggleAllAnswersBtn').addEventListener('click', () => {
+      playSound('click');
+      showAllAnswersInList = !showAllAnswersInList;
+      document.getElementById('toggleAllAnswersBtn').textContent = showAllAnswersInList ? 'Hide All Answers' : 'Show All Answers';
+      renderQuestionsList();
+    });
+
+    // Global keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+
+      const key = e.key;
+
+      if (state.activeTab === 'practice') {
+        if (key === 'ArrowLeft') {
+          document.getElementById('practicePrevBtn').click();
+        } else if (key === 'ArrowRight' || key === 'Enter' || key === ' ') {
+          if (key === ' ') e.preventDefault();
+          document.getElementById('practiceNextBtn').click();
+        } else if (key.toLowerCase() === 's') {
+          document.getElementById('practiceStarBtn').click();
+        } else if (key.toLowerCase() === 'r') {
+          reshuffleAll();
+        } else if (['1', '2', '3', '4', '5'].includes(key)) {
+          const idx = parseInt(key, 10) - 1;
+          const opts = document.querySelectorAll('#practiceOptionsList .option-item');
+          if (opts[idx]) opts[idx].click();
+        } else if (['a', 'b', 'c', 'd', 'e'].includes(key.toLowerCase())) {
+          const idx = key.toLowerCase().charCodeAt(0) - 97;
+          const opts = document.querySelectorAll('#practiceOptionsList .option-item');
+          if (opts[idx]) opts[idx].click();
+        }
+      } else if (state.activeTab === 'exam') {
+        if (key === 'ArrowLeft') {
+          document.getElementById('examPrevBtn').click();
+        } else if (key === 'ArrowRight') {
+          document.getElementById('examNextBtn').click();
+        } else if (['1', '2', '3', '4', '5'].includes(key)) {
+          const idx = parseInt(key, 10) - 1;
+          const opts = document.querySelectorAll('#examOptionsList .option-item');
+          if (opts[idx]) opts[idx].click();
+        }
+      } else if (state.activeTab === 'flashcards') {
+        if (key === 'ArrowLeft') {
+          document.getElementById('flashcardPrevBtn').click();
+        } else if (key === 'ArrowRight') {
+          document.getElementById('flashcardNextBtn').click();
+        } else if (key === ' ' || key === 'Enter') {
+          if (key === ' ') e.preventDefault();
+          toggleFlashcard();
+        }
+      }
+    });
+  }
+
+  // --- BOOTSTRAP ---
+  document.addEventListener('DOMContentLoaded', () => {
+    loadPersistedState();
+    document.querySelectorAll('#poolSelectorButtons .pool-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.pool === state.activePool);
+    });
+    initData();
+    setupEvents();
+  });
+})();
