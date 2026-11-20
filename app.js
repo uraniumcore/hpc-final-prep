@@ -643,8 +643,7 @@
       const item = document.createElement('div');
       item.className = 'option-item';
       if (currentSelected === opt.text) {
-        item.style.borderColor = 'var(--accent-primary)';
-        item.style.background = 'rgba(59, 130, 246, 0.15)';
+        item.classList.add('selected');
       }
 
       const letterEl = document.createElement('div');

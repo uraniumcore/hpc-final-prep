@@ -2,39 +2,71 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#14091F">
   <title>HPC Final Exam Prep • 216 Unique Questions Practice</title>
   <meta name="description" content="High Performance Computing & Big Data Final Exam Practice Quiz with 216 Deduplicated Questions, Final Sample Questions, Past Exam Mistakes Review, Question & Option Shuffling, and Moodle Exam Simulator.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=Inter:wght@400;500;600;700;800&family=Oswald:wght@600;700&family=Pacifico&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div class="vice-backdrop" aria-hidden="true"></div>
   <div class="container">
     <!-- Header -->
     <header>
-      <div class="header-top">
-        <div class="logo-area">
-          <span class="logo-icon">⚡</span>
-          <div>
-            <h1>HPC Final Exam Prep</h1>
-            <div class="subtitle">High Performance Computing &amp; Big Data • 216 Unique Questions Pool (Midterm + Endterm + Final Sample Deduplicated)</div>
+      <div class="hero-card grain">
+        <!-- Vector Sunset & Palm Horizon Backdrop -->
+        <svg class="hero-sunset-svg" viewBox="0 0 800 220" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+          <defs>
+            <linearGradient id="viceSunGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#FFD84A"/>
+              <stop offset="42%" stop-color="#FF8A3D"/>
+              <stop offset="85%" stop-color="#FF4D8D"/>
+              <stop offset="100%" stop-color="#3B1B6B"/>
+            </linearGradient>
+            <clipPath id="sunClip">
+              <circle cx="670" cy="145" r="95"/>
+            </clipPath>
+          </defs>
+          <circle cx="670" cy="145" r="95" fill="url(#viceSunGrad)" opacity="0.88"/>
+          <g clip-path="url(#sunClip)" fill="#14091F" opacity="0.45">
+            <rect x="560" y="132" width="220" height="5"/>
+            <rect x="560" y="148" width="220" height="7"/>
+            <rect x="560" y="166" width="220" height="10"/>
+            <rect x="560" y="186" width="220" height="14"/>
+          </g>
+          <path d="M590,220 C595,170 612,135 628,108 C625,112 608,105 595,112 C606,101 618,98 630,101 C620,86 610,80 598,82 C614,74 628,80 636,94 C644,78 658,72 674,77 C659,81 650,90 644,102 C658,97 674,103 684,116 C668,111 654,112 642,118 C628,144 614,178 612,220 Z" fill="#14091F" opacity="0.72"/>
+          <path d="M735,220 C738,185 748,158 758,136 C746,136 734,141 726,149 C734,134 745,128 759,129 C751,116 741,111 731,112 C744,105 756,110 764,123 C772,110 784,106 798,111 C785,115 776,122 771,132 C783,129 794,134 802,145 C789,140 777,140 768,146 C759,167 752,191 749,220 Z" fill="#14091F" opacity="0.78"/>
+        </svg>
+
+        <div class="header-top">
+          <div class="logo-area">
+            <span class="logo-icon" aria-hidden="true">⚡</span>
+            <div class="title-stack">
+              <div class="title-row">
+                <h1>HPC FINAL PREP</h1>
+                <span class="neon-script">Vice Edition</span>
+                <span class="sticker-pill">216 Qs • LIVE</span>
+              </div>
+              <div class="subtitle">High Performance Computing &amp; Big Data • 216 Unique Questions Pool (Midterm + Endterm + Final Sample)</div>
+            </div>
           </div>
-        </div>
-        <div class="header-actions">
-          <button id="soundToggleBtn" class="btn-icon" title="Toggle Sound (Web Audio)" aria-label="Toggle Sound">🔊</button>
-          <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">🌙</button>
-          <button id="resetProgressBtn" class="btn-icon" title="Reset Answers & History" aria-label="Reset Progress">🗑️</button>
+          <div class="header-actions">
+            <button id="soundToggleBtn" class="btn-icon" title="Toggle Sound (Web Audio)" aria-label="Toggle Sound">🔊</button>
+            <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">🌙</button>
+            <button id="resetProgressBtn" class="btn-icon" title="Reset Answers & History" aria-label="Reset Progress">🗑️</button>
+          </div>
         </div>
       </div>
 
       <!-- Deduplication & Exam Notice Banner -->
       <div class="notice-banner">
-        <div class="notice-icon">📢</div>
+        <div class="notice-icon">🌴</div>
         <div>
-          <strong>Final Exam Bank Summary:</strong> 260 raw questions from 5 sources &rarr; 44 duplicates removed &rarr;
-          <strong>216 unique questions</strong> (78 Midterm + 78 Endterm + 60 Final Sample, including <strong>56 real Moodle exam-exclusive questions</strong> and <strong>36 past mistakes</strong> to review).
+          <strong>Leonida Bank Summary:</strong> 260 raw questions from 5 sources &rarr; 44 duplicates removed &rarr;
+          <strong>216 unique questions</strong> (78 Midterm + 78 Endterm + 60 Final Sample, including <strong>56 Moodle exam-exclusive questions</strong> and <strong>36 past mistakes</strong>).
         </div>
       </div>
 
@@ -271,6 +303,11 @@
         <!-- Rendered list of questions -->
       </div>
     </section>
+
+    <footer class="vice-footer">
+      <span>🌴 Unofficial fan-inspired study deck • Vice Sunset UI</span>
+      <span>HPC &amp; Big Data • 216 Deduplicated Questions</span>
+    </footer>
   </div>
 
   <!-- Confirmation Modal -->
