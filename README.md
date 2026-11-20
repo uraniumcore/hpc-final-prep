@@ -1,12 +1,12 @@
 # ⚡ HPC & Big Data — Final Exam Prep
 
-Интерактивный веб-тренажер для подготовки к финальному экзамену по курсу **High Performance Computing & Big Data**, собранный из всех 4 источников без дубликатов.
+Интерактивный веб-тренажер для подготовки к финальному экзамену по курсу **High Performance Computing & Big Data**, собранный из всех 5 источников без дубликатов.
 
 ---
 
 ## 📊 Статистика банка вопросов (Deduplication Report)
 
-Из 4 исходных файлов (`final-prep/`) собрано **200 сырых вопросов**, из которых удалены **44 пересечения** между sample-банками и реальными экзаменами:
+Из 5 исходных файлов (`final-prep/`) собрано **260 сырых вопросов**, из которых удалены **44 пересечения** между sample-банками и реальными экзаменами (все 60 вопросов из `HPC_Final_60_Student_Questions.pdf` оказались полностью новыми и не пересекаются с предыдущими 156 вопросами):
 
 | Источник | Всего вопросов | Пересечений с Sample | Уникальных новых |
 | :--- | :---: | :---: | :---: |
@@ -14,30 +14,32 @@
 | `my-midterm-review.html` (сданный Midterm: 35/50) | 50 | 22 | 28 |
 | `HPC_Endterm_sample_questions.pdf` | 50 | — | 50 |
 | `my-endterm-review.html` (сданный Endterm: 29/50) | 50 | 22 | 28 |
-| **Итого в финальном банке** | **200** | **44** | **156 уникальных** |
+| `HPC_Final_60_Student_Questions.pdf` (Final Sample) | 60 | 0 | 60 |
+| **Итого в финальном банке** | **260** | **44** | **216 уникальных** |
 
-### Распределение по 9 темам (156 вопросов)
+### Распределение по 9 темам (216 вопросов)
 
-- ⚡ **HPC fundamentals**: 16 (10 Sample + 6 Exam-Only)
-- 🧠 **Memory and parallel design**: 15 (10 Sample + 5 Exam-Only)
-- 🌐 **MPI**: 15 (10 Sample + 5 Exam-Only)
-- 🧵 **OpenMP and hybrid programming**: 16 (10 Sample + 6 Exam-Only)
-- 🗄️ **MapReduce and distributed storage**: 16 (10 Sample + 6 Exam-Only)
-- 🎮 **GPU and CUDA**: 23 (15 Sample + 8 Exam-Only)
-- 🔥 **Spark**: 23 (15 Sample + 8 Exam-Only)
-- 🧩 **PGAS and UPC**: 16 (10 Sample + 6 Exam-Only)
-- 🕸️ **Basic graph algorithms**: 16 (10 Sample + 6 Exam-Only)
+- ⚡ **HPC fundamentals**: 22 (10 M/E Sample + 6 Exam-Only + 6 Final Sample)
+- 🧠 **Memory and parallel design**: 21 (10 M/E Sample + 5 Exam-Only + 6 Final Sample)
+- 🌐 **MPI**: 21 (10 M/E Sample + 5 Exam-Only + 6 Final Sample)
+- 🧵 **OpenMP and hybrid programming**: 22 (10 M/E Sample + 6 Exam-Only + 6 Final Sample)
+- 🗄️ **MapReduce and distributed storage**: 22 (10 M/E Sample + 6 Exam-Only + 6 Final Sample)
+- 🎮 **GPU and CUDA**: 32 (15 M/E Sample + 8 Exam-Only + 9 Final Sample)
+- 🔥 **Spark**: 31 (15 M/E Sample + 8 Exam-Only + 8 Final Sample)
+- 🧩 **PGAS and UPC**: 23 (10 M/E Sample + 6 Exam-Only + 7 Final Sample)
+- 🕸️ **Basic graph algorithms**: 22 (10 M/E Sample + 6 Exam-Only + 6 Final Sample)
 
 ---
 
 ## 📚 Доступные пулы (Question Pools)
 
-- **🌟 All Final (156)** — полный объединенный и дедуплицированный банк.
+- **🌟 All Final (216)** — полный объединенный и дедуплицированный банк.
+- **🎯 Final Sample (60)** — 60 новых официальных вопросов из `HPC_Final_60_Student_Questions.pdf`.
 - **📘 Midterm All (78)** — все уникальные вопросы первой половины курса (50 Sample + 28 из реального Midterm).
 - **📙 Endterm All (78)** — все уникальные вопросы второй половины курса (50 Sample + 28 из реального Endterm).
 - **🔥 Exam-Only (56)** — только те вопросы, которые реально попались на Moodle Midterm/Endterm, но отсутствовали в sample PDF.
 - **❌ My Mistakes (36)** — все 36 вопросов, в которых были ошибки на реальных тестах (15 с Midterm + 21 с Endterm), с подсветкой вашего прошлого ошибочного ответа!
-- **🏛️ Official Samples (100)** — 100 официальных sample-вопросов от лектора.
+- **🏛️ Official Samples (160)** — все 160 официальных sample-вопросов от лектора (50 Midterm + 50 Endterm + 60 Final Sample).
 
 ---
 

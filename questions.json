@@ -6270,5 +6270,2225 @@
     "correctOptionId": "C",
     "correctAnswerText": "take(5)",
     "explanation": "take(5) is an action that retrieves only the first 5 records to the driver (stopping once 5 elements are collected), avoiding the memory hazard of collect() which pulls the entire RDD."
+  },
+  {
+    "id": 157,
+    "part": "final_sample",
+    "topic": "HPC fundamentals",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 1,
+    "moodleNum": null,
+    "originBadge": "Final Sample #1",
+    "userExamAttempt": null,
+    "question": "A program achieves a speedup of 8 on 10 processors. Using efficiency = speedup / processor count, what is its parallel efficiency?",
+    "options": [
+      {
+        "id": "A",
+        "text": "80%"
+      },
+      {
+        "id": "B",
+        "text": "100%"
+      },
+      {
+        "id": "C",
+        "text": "125%"
+      },
+      {
+        "id": "D",
+        "text": "20%"
+      },
+      {
+        "id": "E",
+        "text": "8%"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "80%",
+    "explanation": "Parallel efficiency is defined as E = S / p, where S is the speedup and p is the processor count. Here E = 8 / 10 = 0.80 = 80%."
+  },
+  {
+    "id": 158,
+    "part": "final_sample",
+    "topic": "HPC fundamentals",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 2,
+    "moodleNum": null,
+    "originBadge": "Final Sample #2",
+    "userExamAttempt": null,
+    "question": "Two implementations solve the same problem. Version A uses 4 processors for 50 seconds; version B uses 8 processors for 30 seconds. Which comparison of elapsed time and total processor-seconds is correct?",
+    "options": [
+      {
+        "id": "A",
+        "text": "B has lower elapsed time but uses more processor-seconds"
+      },
+      {
+        "id": "B",
+        "text": "B uses twice as many processor-seconds as A"
+      },
+      {
+        "id": "C",
+        "text": "Both use the same processor-seconds because the problem is unchanged"
+      },
+      {
+        "id": "D",
+        "text": "B has lower elapsed time and uses fewer processor-seconds"
+      },
+      {
+        "id": "E",
+        "text": "A has lower elapsed time but uses more processor-seconds"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "B has lower elapsed time but uses more processor-seconds",
+    "explanation": "Elapsed (wall-clock) time for B is 30 s vs. 50 s for A, so B is faster in elapsed time. However, total work/cost in processor-seconds is p * T: Version A uses 4 * 50 = 200 processor-seconds, while Version B uses 8 * 30 = 240 processor-seconds. Thus B has lower elapsed time but consumes more processor-seconds."
+  },
+  {
+    "id": 159,
+    "part": "final_sample",
+    "topic": "HPC fundamentals",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 3,
+    "moodleNum": null,
+    "originBadge": "Final Sample #3",
+    "userExamAttempt": null,
+    "question": "A simulation updates 2 million cells, performs 50 floating-point operations per cell per step, and runs for 100 steps. How many floating-point operations are performed in total?",
+    "options": [
+      {
+        "id": "A",
+        "text": "10 billion"
+      },
+      {
+        "id": "B",
+        "text": "5 billion"
+      },
+      {
+        "id": "C",
+        "text": "1 billion"
+      },
+      {
+        "id": "D",
+        "text": "100 million"
+      },
+      {
+        "id": "E",
+        "text": "100 billion"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "10 billion",
+    "explanation": "Total floating-point operations = (cells) * (FLOPs per cell per step) * (steps) = (2 * 10^6) * 50 * 100 = 10^7 * 100 * 10 = 10^10 = 10 billion operations."
+  },
+  {
+    "id": 160,
+    "part": "final_sample",
+    "topic": "HPC fundamentals",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 4,
+    "moodleNum": null,
+    "originBadge": "Final Sample #4",
+    "userExamAttempt": null,
+    "question": "Two cluster nodes each have 32 GB of private memory. A 48 GB data set can be divided evenly between them. Which statement correctly describes this distributed-memory arrangement?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Either node automatically sees one ordinary 64 GB shared address space"
+      },
+      {
+        "id": "B",
+        "text": "Each node can hold a 24 GB partition, with remote data exchanged explicitly"
+      },
+      {
+        "id": "C",
+        "text": "A barrier makes both private memories directly addressable as one array"
+      },
+      {
+        "id": "D",
+        "text": "Each node must reserve 48 GB even when it uses only its own partition"
+      },
+      {
+        "id": "E",
+        "text": "Both nodes must store all 48 GB before distributed processing can begin"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "Each node can hold a 24 GB partition, with remote data exchanged explicitly",
+    "explanation": "In a distributed-memory architecture, each node has its own private address space (32 GB each). A 48 GB dataset can be partitioned into 24 GB per node, and whenever a node needs non-local data, it must explicitly communicate/exchange messages over the network."
+  },
+  {
+    "id": 161,
+    "part": "final_sample",
+    "topic": "HPC fundamentals",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 5,
+    "moodleNum": null,
+    "originBadge": "Final Sample #5",
+    "userExamAttempt": null,
+    "question": "A job spends 12 seconds in a serial phase and 88 seconds in a phase that divides perfectly over 4 processors. Ignoring overhead, what is the total parallel runtime?",
+    "options": [
+      {
+        "id": "A",
+        "text": "22 seconds"
+      },
+      {
+        "id": "B",
+        "text": "100 seconds"
+      },
+      {
+        "id": "C",
+        "text": "25 seconds"
+      },
+      {
+        "id": "D",
+        "text": "40 seconds"
+      },
+      {
+        "id": "E",
+        "text": "34 seconds"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "34 seconds",
+    "explanation": "By Amdahl's Law, the serial portion (12 s) cannot be sped up, while the perfectly parallelizable portion (88 s) divides evenly across 4 processors: 88 / 4 = 22 s. Total parallel runtime = 12 + 22 = 34 seconds."
+  },
+  {
+    "id": 162,
+    "part": "final_sample",
+    "topic": "HPC fundamentals",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 6,
+    "moodleNum": null,
+    "originBadge": "Final Sample #6",
+    "userExamAttempt": null,
+    "question": "Four workers begin together and take 8, 8, 8, and 20 seconds to finish their assigned work. A final barrier has negligible overhead. How long does this parallel phase take?",
+    "options": [
+      {
+        "id": "A",
+        "text": "8 seconds"
+      },
+      {
+        "id": "B",
+        "text": "20 seconds"
+      },
+      {
+        "id": "C",
+        "text": "44 seconds"
+      },
+      {
+        "id": "D",
+        "text": "11 seconds"
+      },
+      {
+        "id": "E",
+        "text": "12 seconds"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "20 seconds",
+    "explanation": "At a barrier, every worker must wait until the slowest worker arrives before proceeding. Since all four workers start together and finish in 8, 8, 8, and 20 seconds, the parallel phase takes max(8, 8, 8, 20) = 20 seconds."
+  },
+  {
+    "id": 163,
+    "part": "final_sample",
+    "topic": "Memory and parallel design",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 7,
+    "moodleNum": null,
+    "originBadge": "Final Sample #7",
+    "userExamAttempt": null,
+    "question": "A cache line holds 64 bytes. A contiguous array stores 8-byte elements, and a[0] begins at a cache-line boundary. How many array elements fit in the first cache line?",
+    "options": [
+      {
+        "id": "A",
+        "text": "64"
+      },
+      {
+        "id": "B",
+        "text": "512"
+      },
+      {
+        "id": "C",
+        "text": "4"
+      },
+      {
+        "id": "D",
+        "text": "8"
+      },
+      {
+        "id": "E",
+        "text": "16"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "8",
+    "explanation": "Since a[0] starts on a 64-byte cache-line boundary and each element occupies 8 bytes, the first cache line holds 64 / 8 = 8 contiguous elements (a[0] through a[7])."
+  },
+  {
+    "id": 164,
+    "part": "final_sample",
+    "topic": "Memory and parallel design",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 8,
+    "moodleNum": null,
+    "originBadge": "Final Sample #8",
+    "userExamAttempt": null,
+    "question": "A program repeatedly scans a working set much larger than cache capacity. Why might many accesses still miss after the first complete scan?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Only writes can bring data into cache"
+      },
+      {
+        "id": "B",
+        "text": "The first scan permanently disables caching for those addresses"
+      },
+      {
+        "id": "C",
+        "text": "Each additional scan reduces physical cache capacity"
+      },
+      {
+        "id": "D",
+        "text": "Earlier cache lines may be evicted before the next scan reuses them"
+      },
+      {
+        "id": "E",
+        "text": "An address can produce at most one cache hit in a program"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "Earlier cache lines may be evicted before the next scan reuses them",
+    "explanation": "When the working set exceeds the cache size, scanning through the entire dataset evicts earlier cache lines to make room for later ones (capacity misses). By the time the next scan returns to the beginning, those earlier lines are no longer in cache and miss again."
+  },
+  {
+    "id": 165,
+    "part": "final_sample",
+    "topic": "Memory and parallel design",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 9,
+    "moodleNum": null,
+    "originBadge": "Final Sample #9",
+    "userExamAttempt": null,
+    "question": "A parallel-program designer has already formed tasks and identified their communication. The designer now decides which processor will execute each task. Which design step is this?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Communication identification"
+      },
+      {
+        "id": "B",
+        "text": "Reduction"
+      },
+      {
+        "id": "C",
+        "text": "Agglomeration"
+      },
+      {
+        "id": "D",
+        "text": "Partitioning"
+      },
+      {
+        "id": "E",
+        "text": "Mapping"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "Mapping",
+    "explanation": "In Ian Foster's PCAM design methodology (Partitioning, Communication, Agglomeration, Mapping), Mapping is the final stage where tasks are assigned to specific physical processors/workers."
+  },
+  {
+    "id": 166,
+    "part": "final_sample",
+    "topic": "Memory and parallel design",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 10,
+    "moodleNum": null,
+    "originBadge": "Final Sample #10",
+    "userExamAttempt": null,
+    "question": "A program assigns separate image regions to workers, each applying the same filter to its region. What kind of decomposition is used?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A pipeline with one stage per worker"
+      },
+      {
+        "id": "B",
+        "text": "Replication of the entire calculation on every worker"
+      },
+      {
+        "id": "C",
+        "text": "A global reduction without partitioning"
+      },
+      {
+        "id": "D",
+        "text": "Functional decomposition into different processing stages"
+      },
+      {
+        "id": "E",
+        "text": "Domain decomposition"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "Domain decomposition",
+    "explanation": "Domain (data) decomposition partitions the data space (here, image regions) across workers, with each worker performing the same computation (applying the filter) on its assigned subdomain."
+  },
+  {
+    "id": 167,
+    "part": "final_sample",
+    "topic": "Memory and parallel design",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 11,
+    "moodleNum": null,
+    "originBadge": "Final Sample #11",
+    "userExamAttempt": null,
+    "question": "Two tasks repeatedly exchange a large intermediate buffer. Several processor assignments are otherwise equally balanced. Which mapping most directly aims to reduce communication cost?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Split each buffer transfer into as many small messages as possible"
+      },
+      {
+        "id": "B",
+        "text": "Move both tasks after every buffer exchange"
+      },
+      {
+        "id": "C",
+        "text": "Assign them using task-name order without considering communication"
+      },
+      {
+        "id": "D",
+        "text": "Place the communicating tasks close to each other in the hardware topology"
+      },
+      {
+        "id": "E",
+        "text": "Place them as far apart as possible regardless of the interconnect"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "Place the communicating tasks close to each other in the hardware topology",
+    "explanation": "Placing frequently communicating tasks close together in the hardware topology (e.g., on the same node or nearby switch hops) reduces network latency, contention, and communication overhead."
+  },
+  {
+    "id": 168,
+    "part": "final_sample",
+    "topic": "Memory and parallel design",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 12,
+    "moodleNum": null,
+    "originBadge": "Final Sample #12",
+    "userExamAttempt": null,
+    "question": "A grid update uses each cell and its immediate neighbors. Two workers own adjacent regions. What data typically needs to be exchanged between updates?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Only the global number of cells"
+      },
+      {
+        "id": "B",
+        "text": "The complete program executable on every iteration"
+      },
+      {
+        "id": "C",
+        "text": "Every interior value even when no remote update uses it"
+      },
+      {
+        "id": "D",
+        "text": "Only each worker’s final output after all updates finish"
+      },
+      {
+        "id": "E",
+        "text": "Boundary values needed by the neighboring region"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "Boundary values needed by the neighboring region",
+    "explanation": "In stencil/grid computations where updates depend on immediate neighbors, each worker only needs to exchange its boundary (halo / ghost-cell) values with adjacent workers between iterations, rather than interior data."
+  },
+  {
+    "id": 169,
+    "part": "final_sample",
+    "topic": "MPI",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 13,
+    "moodleNum": null,
+    "originBadge": "Final Sample #13",
+    "userExamAttempt": null,
+    "question": "Rank 0 has a parameter value that every rank needs. All ranks call the same collective with root 0. Which operation distributes that value without combining it with other values?",
+    "options": [
+      {
+        "id": "A",
+        "text": "MPI_Reduce with MPI_SUM"
+      },
+      {
+        "id": "B",
+        "text": "MPI_Barrier"
+      },
+      {
+        "id": "C",
+        "text": "MPI_Gather"
+      },
+      {
+        "id": "D",
+        "text": "MPI_Bcast"
+      },
+      {
+        "id": "E",
+        "text": "MPI_Scatter with different values for each rank"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "MPI_Bcast",
+    "explanation": "MPI_Bcast (broadcast) sends a copy of the exact same data from the root rank (rank 0) to all ranks in the communicator without reducing or splitting it."
+  },
+  {
+    "id": 170,
+    "part": "final_sample",
+    "topic": "MPI",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 14,
+    "moodleNum": null,
+    "originBadge": "Final Sample #14",
+    "userExamAttempt": null,
+    "question": "Ranks 0, 1, and 2 each send the two integers [rank, rank+10] to MPI_Gather at root 0. What is the order of the six integers in the root’s receive buffer?",
+    "options": [
+      {
+        "id": "A",
+        "text": "[3,33,0,0,0,0]"
+      },
+      {
+        "id": "B",
+        "text": "[0,10,0,10,0,10]"
+      },
+      {
+        "id": "C",
+        "text": "[2,12,1,11,0,10]"
+      },
+      {
+        "id": "D",
+        "text": "[0,1,2,10,11,12]"
+      },
+      {
+        "id": "E",
+        "text": "[0,10,1,11,2,12]"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "[0,10,1,11,2,12]",
+    "explanation": "MPI_Gather collects the send buffer from each rank in rank order (rank 0, then rank 1, then rank 2) and places them contiguously into the root's receive buffer: [0, 10, 1, 11, 2, 12]."
+  },
+  {
+    "id": 171,
+    "part": "final_sample",
+    "topic": "MPI",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 15,
+    "moodleNum": null,
+    "originBadge": "Final Sample #15",
+    "userExamAttempt": null,
+    "question": "Rank 0 sends one message to rank 1 with tag 7 in MPI_COMM_WORLD. Which receive at rank 1 explicitly matches its source, tag, and communicator?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Source 1, tag 7, MPI_COMM_WORLD"
+      },
+      {
+        "id": "B",
+        "text": "Source 0, tag 7, MPI_COMM_SELF"
+      },
+      {
+        "id": "C",
+        "text": "Source 0, tag 8, MPI_COMM_WORLD"
+      },
+      {
+        "id": "D",
+        "text": "Source 0, tag 7, MPI_COMM_WORLD"
+      },
+      {
+        "id": "E",
+        "text": "Source 1, tag 8, MPI_COMM_WORLD"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "Source 0, tag 7, MPI_COMM_WORLD",
+    "explanation": "An MPI_Recv matches an incoming message only when the source rank (0), message tag (7), and communicator (MPI_COMM_WORLD) all match the sender's MPI_Send arguments."
+  },
+  {
+    "id": 172,
+    "part": "final_sample",
+    "topic": "MPI",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 16,
+    "moodleNum": null,
+    "originBadge": "Final Sample #16",
+    "userExamAttempt": null,
+    "question": "A process starts MPI_Isend using buffer buf and then performs unrelated computation. When is it safe to overwrite buf for a new purpose?",
+    "options": [
+      {
+        "id": "A",
+        "text": "After changing the message tag variable in the caller"
+      },
+      {
+        "id": "B",
+        "text": "As soon as another unrelated request completes"
+      },
+      {
+        "id": "C",
+        "text": "Immediately after MPI_Isend returns, regardless of completion"
+      },
+      {
+        "id": "D",
+        "text": "After completion of that send has been confirmed, for example by MPI_Wait"
+      },
+      {
+        "id": "E",
+        "text": "After the receiving process’s rank has been printed"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "After completion of that send has been confirmed, for example by MPI_Wait",
+    "explanation": "MPI_Isend is nonblocking: it initiates the send and returns immediately while MPI may still be reading from buf. Modifying buf is only safe after confirming completion with a completion call such as MPI_Wait (or MPI_Test returning true)."
+  },
+  {
+    "id": 173,
+    "part": "final_sample",
+    "topic": "MPI",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 17,
+    "moodleNum": null,
+    "originBadge": "Final Sample #17",
+    "userExamAttempt": null,
+    "question": "Two ranks each issue a blocking send to the other before posting their receive. The program must work even when MPI cannot buffer the messages. Which change directly avoids relying on that buffering?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Add a barrier immediately before both blocking sends"
+      },
+      {
+        "id": "B",
+        "text": "Print each rank number before its blocking send"
+      },
+      {
+        "id": "C",
+        "text": "Give both messages the same tag without changing the order"
+      },
+      {
+        "id": "D",
+        "text": "Use MPI_Sendrecv to perform the paired send and receive"
+      },
+      {
+        "id": "E",
+        "text": "Use larger send buffers without changing the order"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "Use MPI_Sendrecv to perform the paired send and receive",
+    "explanation": "If two ranks both call blocking MPI_Send before posting MPI_Recv and MPI lacks internal buffering (e.g., rendezvous protocol), both will block forever in deadlock. MPI_Sendrecv safely pairs the send and receive together without deadlock."
+  },
+  {
+    "id": 174,
+    "part": "final_sample",
+    "topic": "MPI",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 18,
+    "moodleNum": null,
+    "originBadge": "Final Sample #18",
+    "userExamAttempt": null,
+    "question": "Two ranks have different private values of x and then call MPI_Barrier. No data-transfer operation is performed. What does the barrier guarantee?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Each rank receives the sum of both values of x"
+      },
+      {
+        "id": "B",
+        "text": "Rank 0’s x is copied to rank 1"
+      },
+      {
+        "id": "C",
+        "text": "Neither rank completes the barrier before both have entered it"
+      },
+      {
+        "id": "D",
+        "text": "Both private values of x become equal"
+      },
+      {
+        "id": "E",
+        "text": "All ordinary variables become shared after the barrier"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "Neither rank completes the barrier before both have entered it",
+    "explanation": "MPI_Barrier only synchronizes execution: no rank can return from MPI_Barrier until every rank in the communicator has called it. It does not transfer or synchronize variable values."
+  },
+  {
+    "id": 175,
+    "part": "final_sample",
+    "topic": "OpenMP and hybrid programming",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 19,
+    "moodleNum": null,
+    "originBadge": "Final Sample #19",
+    "userExamAttempt": null,
+    "question": "An array is shared by threads on one node. A loop updates each element independently exactly once. Which construct directly divides those iterations across a newly created team?",
+    "options": [
+      {
+        "id": "A",
+        "text": "#pragma omp barrier before the serial loop"
+      },
+      {
+        "id": "B",
+        "text": "#pragma omp critical around the unchanged full loop"
+      },
+      {
+        "id": "C",
+        "text": "#pragma omp parallel for"
+      },
+      {
+        "id": "D",
+        "text": "#pragma omp single around the full loop"
+      },
+      {
+        "id": "E",
+        "text": "#pragma omp parallel around the unchanged full loop"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "#pragma omp parallel for",
+    "explanation": "`#pragma omp parallel for` creates a team of threads (parallel region) and distributes the loop's independent iterations across those threads."
+  },
+  {
+    "id": 176,
+    "part": "final_sample",
+    "topic": "OpenMP and hybrid programming",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 20,
+    "moodleNum": null,
+    "originBadge": "Final Sample #20",
+    "userExamAttempt": null,
+    "question": "A variable t is declared outside an OpenMP parallel loop. Each iteration assigns t = a[i] * 2 and then uses t to write b[i]. Different iterations write different b elements. Which clause avoids races on t without serializing the loop?",
+    "options": [
+      {
+        "id": "A",
+        "text": "shared(t)"
+      },
+      {
+        "id": "B",
+        "text": "private(t)"
+      },
+      {
+        "id": "C",
+        "text": "collapse(1) alone"
+      },
+      {
+        "id": "D",
+        "text": "nowait alone"
+      },
+      {
+        "id": "E",
+        "text": "schedule(static) alone"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "private(t)",
+    "explanation": "Declaring `private(t)` gives each thread its own independent copy of `t` for the duration of the parallel loop, preventing data races on `t` without serializing execution."
+  },
+  {
+    "id": 177,
+    "part": "final_sample",
+    "topic": "OpenMP and hybrid programming",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 21,
+    "moodleNum": null,
+    "originBadge": "Final Sample #21",
+    "userExamAttempt": null,
+    "question": "Assume valid OpenMP execution. What is sum after this code?\n\n```c\nint sum = 0;\n#pragma omp parallel for reduction(+:sum)\nfor (int i = 1; i <= 5; ++i)\nsum += 2*i;\n```",
+    "options": [
+      {
+        "id": "A",
+        "text": "60"
+      },
+      {
+        "id": "B",
+        "text": "30"
+      },
+      {
+        "id": "C",
+        "text": "15"
+      },
+      {
+        "id": "D",
+        "text": "25"
+      },
+      {
+        "id": "E",
+        "text": "10"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "30",
+    "explanation": "With `reduction(+:sum)`, each thread accumulates a partial sum privately and OpenMP combines them safely at the end. For i = 1..5, sum = 2(1) + 2(2) + 2(3) + 2(4) + 2(5) = 2 + 4 + 6 + 8 + 10 = 30."
+  },
+  {
+    "id": 178,
+    "part": "final_sample",
+    "topic": "OpenMP and hybrid programming",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 22,
+    "moodleNum": null,
+    "originBadge": "Final Sample #22",
+    "userExamAttempt": null,
+    "question": "Threads increment one shared integer counter. The update is only counter++. Which OpenMP construct can directly make this individual update atomic?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A shared(counter) clause by itself"
+      },
+      {
+        "id": "B",
+        "text": "An atomic directive immediately before counter++"
+      },
+      {
+        "id": "C",
+        "text": "A barrier immediately before every unsynchronized counter++"
+      },
+      {
+        "id": "D",
+        "text": "A static schedule by itself"
+      },
+      {
+        "id": "E",
+        "text": "A private(counter) clause while still expecting a shared total"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "An atomic directive immediately before counter++",
+    "explanation": "`#pragma omp atomic` before `counter++` ensures the read-modify-write increment executes atomically (often via hardware atomic instructions), avoiding race conditions with much lower overhead than a full critical section."
+  },
+  {
+    "id": 179,
+    "part": "final_sample",
+    "topic": "OpenMP and hybrid programming",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 23,
+    "moodleNum": null,
+    "originBadge": "Final Sample #23",
+    "userExamAttempt": null,
+    "question": "An OpenMP loop has iterations 0 through 11, three threads, and schedule(static,2). Which iterations are assigned to thread 2?",
+    "options": [
+      {
+        "id": "A",
+        "text": "0, 1, 6, 7"
+      },
+      {
+        "id": "B",
+        "text": "2, 5, 8, 11"
+      },
+      {
+        "id": "C",
+        "text": "2, 3, 8, 9"
+      },
+      {
+        "id": "D",
+        "text": "6, 7, 8, 9"
+      },
+      {
+        "id": "E",
+        "text": "4, 5, 10, 11"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "4, 5, 10, 11",
+    "explanation": "With 12 iterations (0..11), 3 threads, and `schedule(static, 2)`, chunks of size 2 are dealt round-robin: Thread 0 -> [0,1], Thread 1 -> [2,3], Thread 2 -> [4,5], Thread 0 -> [6,7], Thread 1 -> [8,9], Thread 2 -> [10,11]. Thread 2 executes 4, 5, 10, 11."
+  },
+  {
+    "id": 180,
+    "part": "final_sample",
+    "topic": "OpenMP and hybrid programming",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 24,
+    "moodleNum": null,
+    "originBadge": "Final Sample #24",
+    "userExamAttempt": null,
+    "question": "A hybrid job runs 2 MPI processes on each of 3 nodes. Each process creates 4 OpenMP threads, including its primary thread. During those parallel regions, how many MPI processes and OpenMP threads are there in total?",
+    "options": [
+      {
+        "id": "A",
+        "text": "3 processes and 12 threads"
+      },
+      {
+        "id": "B",
+        "text": "24 processes and 6 threads"
+      },
+      {
+        "id": "C",
+        "text": "6 processes and 18 threads"
+      },
+      {
+        "id": "D",
+        "text": "6 processes and 24 threads"
+      },
+      {
+        "id": "E",
+        "text": "2 processes and 24 threads"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "6 processes and 24 threads",
+    "explanation": "Total MPI processes = 3 nodes * 2 processes/node = 6 processes. Since each of the 6 processes spawns 4 OpenMP threads in parallel regions, there are 6 * 4 = 24 OpenMP threads in total."
+  },
+  {
+    "id": 181,
+    "part": "final_sample",
+    "topic": "MapReduce and distributed storage",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 25,
+    "moodleNum": null,
+    "originBadge": "Final Sample #25",
+    "userExamAttempt": null,
+    "question": "Mappers emit (’x’,4), (’y’,2), (’x’,6), and (’y’,5). A reducer sums values for each key. What is the output, ignoring order?",
+    "options": [
+      {
+        "id": "A",
+        "text": "(’x’,4) and (’y’,6)"
+      },
+      {
+        "id": "B",
+        "text": "(’x’,10) and (’y’,7)"
+      },
+      {
+        "id": "C",
+        "text": "(’x’,6) and (’y’,5)"
+      },
+      {
+        "id": "D",
+        "text": "(’x’,17) only"
+      },
+      {
+        "id": "E",
+        "text": "(’x’,2) and (’y’,2)"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "(’x’,10) and (’y’,7)",
+    "explanation": "During shuffle/grouping, values are grouped by key: key 'x' gets [4, 6] -> sum = 10, and key 'y' gets [2, 5] -> sum = 7. Output: ('x', 10) and ('y', 7)."
+  },
+  {
+    "id": 182,
+    "part": "final_sample",
+    "topic": "MapReduce and distributed storage",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 26,
+    "moodleNum": null,
+    "originBadge": "Final Sample #26",
+    "userExamAttempt": null,
+    "question": "Two mappers produce records with the same intermediate key. What must the shuffle and grouping stage ensure for ordinary per-key reduction?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Each mapper’s records are reduced separately regardless of key"
+      },
+      {
+        "id": "B",
+        "text": "They are assigned to different reducers to avoid duplicate keys"
+      },
+      {
+        "id": "C",
+        "text": "Only the first record for that key is retained"
+      },
+      {
+        "id": "D",
+        "text": "The records are grouped by their original input positions"
+      },
+      {
+        "id": "E",
+        "text": "Those records are assigned to the same reduce group"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "Those records are assigned to the same reduce group",
+    "explanation": "MapReduce's shuffle and sort stage guarantees that all intermediate key-value pairs sharing the same key (even across different mappers) are routed to the same reduce group/task so the reducer sees all values for that key."
+  },
+  {
+    "id": 183,
+    "part": "final_sample",
+    "topic": "MapReduce and distributed storage",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 27,
+    "moodleNum": null,
+    "originBadge": "Final Sample #27",
+    "userExamAttempt": null,
+    "question": "A MapReduce job uses a combiner for local aggregation. Which correctness assumption should the job make?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The final answer must remain correct even if the combiner is not executed"
+      },
+      {
+        "id": "B",
+        "text": "The combiner is guaranteed to run exactly once on every mapper output"
+      },
+      {
+        "id": "C",
+        "text": "The combiner can replace the reducer for any application"
+      },
+      {
+        "id": "D",
+        "text": "Every key must be processed by one combiner only"
+      },
+      {
+        "id": "E",
+        "text": "The reducer can assume the combiner has already seen every global value"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "The final answer must remain correct even if the combiner is not executed",
+    "explanation": "In MapReduce, combiners are an optional local optimization: the runtime may invoke a combiner zero, one, or multiple times. Therefore, the job's logic must remain completely correct even if the combiner never runs."
+  },
+  {
+    "id": 184,
+    "part": "final_sample",
+    "topic": "MapReduce and distributed storage",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 28,
+    "moodleNum": null,
+    "originBadge": "Final Sample #28",
+    "userExamAttempt": null,
+    "question": "For an inverted index, a reducer receives word ’parallel’ with document IDs [D1,D1,D3]. If the index should list each containing document once, what should this reducer output?",
+    "options": [
+      {
+        "id": "A",
+        "text": "’parallel’ mapped to {D1} only"
+      },
+      {
+        "id": "B",
+        "text": "’parallel’ mapped to {D1,D3}"
+      },
+      {
+        "id": "C",
+        "text": "D3 mapped to the integer 1 only"
+      },
+      {
+        "id": "D",
+        "text": "’parallel’ mapped to the integer 3"
+      },
+      {
+        "id": "E",
+        "text": "D1 mapped to {’parallel’} only"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "’parallel’ mapped to {D1,D3}",
+    "explanation": "An inverted index maps each term to the set of distinct document IDs containing it. Deduplicating [D1, D1, D3] yields 'parallel' -> {D1, D3}."
+  },
+  {
+    "id": 185,
+    "part": "final_sample",
+    "topic": "MapReduce and distributed storage",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 29,
+    "moodleNum": null,
+    "originBadge": "Final Sample #29",
+    "userExamAttempt": null,
+    "question": "An HDFS client has a file path but needs to know which machines store its blocks. Which component normally provides this metadata?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The job’s last completed mapper"
+      },
+      {
+        "id": "B",
+        "text": "An application’s partitioner"
+      },
+      {
+        "id": "C",
+        "text": "The MapReduce combiner"
+      },
+      {
+        "id": "D",
+        "text": "The reduce function"
+      },
+      {
+        "id": "E",
+        "text": "The NameNode"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "The NameNode",
+    "explanation": "In HDFS, the NameNode manages the file system namespace and metadata, mapping file paths to block IDs and tracking which DataNodes hold replicas of each block."
+  },
+  {
+    "id": 186,
+    "part": "final_sample",
+    "topic": "MapReduce and distributed storage",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 30,
+    "moodleNum": null,
+    "originBadge": "Final Sample #30",
+    "userExamAttempt": null,
+    "question": "An HDFS client has obtained the locations of a file’s blocks. Which statement describes the usual data-read path?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The partitioner supplies the stored block contents"
+      },
+      {
+        "id": "B",
+        "text": "The NameNode relays every block byte through itself"
+      },
+      {
+        "id": "C",
+        "text": "The client asks a reducer to reconstruct every block"
+      },
+      {
+        "id": "D",
+        "text": "The job scheduler sends the file’s bytes to the client"
+      },
+      {
+        "id": "E",
+        "text": "The client reads block bytes from the relevant DataNodes"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "The client reads block bytes from the relevant DataNodes",
+    "explanation": "After obtaining block locations from the NameNode, the HDFS client connects directly to the corresponding DataNodes to stream the block bytes—data does not flow through the NameNode."
+  },
+  {
+    "id": 187,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 31,
+    "moodleNum": null,
+    "originBadge": "Final Sample #31",
+    "userExamAttempt": null,
+    "question": "A CUDA kernel is launched as update<<<6,96>>>(...). How many blocks and total threads are requested?",
+    "options": [
+      {
+        "id": "A",
+        "text": "96 blocks and 576 threads"
+      },
+      {
+        "id": "B",
+        "text": "6 blocks and 96 threads"
+      },
+      {
+        "id": "C",
+        "text": "6 blocks and 576 threads"
+      },
+      {
+        "id": "D",
+        "text": "96 blocks and 6 threads"
+      },
+      {
+        "id": "E",
+        "text": "6 blocks and 102 threads"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "6 blocks and 576 threads",
+    "explanation": "In CUDA kernel launch syntax `<<<gridDim, blockDim>>>`, the first argument specifies the number of blocks (6) and the second specifies threads per block (96). Total threads = 6 * 96 = 576."
+  },
+  {
+    "id": 188,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 32,
+    "moodleNum": null,
+    "originBadge": "Final Sample #32",
+    "userExamAttempt": null,
+    "question": "A launch uses 5 blocks of 128 threads for an array with 600 elements. The kernel accesses the array only when i < 600. How many launched threads skip the guarded array operation?",
+    "options": [
+      {
+        "id": "A",
+        "text": "128"
+      },
+      {
+        "id": "B",
+        "text": "24"
+      },
+      {
+        "id": "C",
+        "text": "88"
+      },
+      {
+        "id": "D",
+        "text": "40"
+      },
+      {
+        "id": "E",
+        "text": "600"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "40",
+    "explanation": "Total launched threads = 5 * 128 = 640. Since only indices i < 600 (0..599, i.e., 600 threads) perform the array operation, 640 - 600 = 40 threads skip the guarded operation."
+  },
+  {
+    "id": 189,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 33,
+    "moodleNum": null,
+    "originBadge": "Final Sample #33",
+    "userExamAttempt": null,
+    "question": "A grid-stride loop uses 3 blocks of 64 threads. A thread starts at i = 5 and advances by blockDim.x * gridDim.x. For an array length of 500, which indices does it process?",
+    "options": [
+      {
+        "id": "A",
+        "text": "5, 197 only"
+      },
+      {
+        "id": "B",
+        "text": "5, 192, 384"
+      },
+      {
+        "id": "C",
+        "text": "5, 197, 389"
+      },
+      {
+        "id": "D",
+        "text": "5, 8, 11"
+      },
+      {
+        "id": "E",
+        "text": "5, 69, 133, 197, 261, 325, 389, 453"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "5, 197, 389",
+    "explanation": "The grid stride is `gridDim.x * blockDim.x` = 3 * 64 = 192. Starting at i = 5, the thread processes 5, 5 + 192 = 197, and 197 + 192 = 389. Next would be 389 + 192 = 581, which is >= 500 and stops."
+  },
+  {
+    "id": 190,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 34,
+    "moodleNum": null,
+    "originBadge": "Final Sample #34",
+    "userExamAttempt": null,
+    "question": "In an explicit separate-memory CUDA program, a completed kernel has written a device output buffer. Which sequence lets the CPU use the values and then releases that device buffer?",
+    "options": [
+      {
+        "id": "A",
+        "text": "cudaFree the device buffer, then copy its contents to the host"
+      },
+      {
+        "id": "B",
+        "text": "Call cudaMalloc again on the device pointer, then read the old values"
+      },
+      {
+        "id": "C",
+        "text": "Call __syncthreads() on the host, then read the device pointer directly"
+      },
+      {
+        "id": "D",
+        "text": "Assign the device pointer to a host pointer, then free it with free"
+      },
+      {
+        "id": "E",
+        "text": "Copy device output to a host buffer, then cudaFree the device buffer"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "Copy device output to a host buffer, then cudaFree the device buffer",
+    "explanation": "With separate host and device memories, the host must first copy the results back (`cudaMemcpy(..., cudaMemcpyDeviceToHost)`) while the device buffer is still allocated, and only then release the GPU memory with `cudaFree`."
+  },
+  {
+    "id": 191,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 35,
+    "moodleNum": null,
+    "originBadge": "Final Sample #35",
+    "userExamAttempt": null,
+    "question": "Each CUDA block cooperatively loads a tile reused only by threads in that block. Which memory space is designed for this block-level cooperation?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Per-thread local memory"
+      },
+      {
+        "id": "B",
+        "text": "Per-thread registers only"
+      },
+      {
+        "id": "C",
+        "text": "Shared memory"
+      },
+      {
+        "id": "D",
+        "text": "Host stack memory"
+      },
+      {
+        "id": "E",
+        "text": "A private CPU cache line"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "Shared memory",
+    "explanation": "CUDA shared memory (`__shared__`) is fast on-chip memory shared by all threads within the same thread block, explicitly intended for cooperative tile loading and data reuse."
+  },
+  {
+    "id": 192,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 36,
+    "moodleNum": null,
+    "originBadge": "Final Sample #36",
+    "userExamAttempt": null,
+    "question": "After all threads in a block load their assigned shared-memory values, each thread reads values loaded by other threads. Where should a block barrier normally be placed?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Only before the cooperative loads"
+      },
+      {
+        "id": "B",
+        "text": "Only in the thread with the largest index"
+      },
+      {
+        "id": "C",
+        "text": "Between the cooperative loads and the cross-thread reads"
+      },
+      {
+        "id": "D",
+        "text": "Only after all cross-thread reads"
+      },
+      {
+        "id": "E",
+        "text": "Only in threads whose loaded value is positive"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "Between the cooperative loads and the cross-thread reads",
+    "explanation": "`__syncthreads()` acts as a block-level barrier. Placing it after the cooperative shared-memory stores and before any thread reads values written by other threads prevents RAW (read-after-write) race hazards."
+  },
+  {
+    "id": 193,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 37,
+    "moodleNum": null,
+    "originBadge": "Final Sample #37",
+    "userExamAttempt": null,
+    "question": "Every active thread in a warp evaluates a branch condition as true. What can be concluded about that branch?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It does not split that warp into different branch paths"
+      },
+      {
+        "id": "B",
+        "text": "It forces all blocks in the grid to synchronize"
+      },
+      {
+        "id": "C",
+        "text": "It converts all accesses inside the branch into shared-memory accesses"
+      },
+      {
+        "id": "D",
+        "text": "It guarantees the entire kernel has no other performance bottleneck"
+      },
+      {
+        "id": "E",
+        "text": "It necessarily causes divergence because it contains an if statement"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "It does not split that warp into different branch paths",
+    "explanation": "Warp divergence only occurs when threads within the same warp follow different execution paths. If all active threads in the warp evaluate the branch condition identically (all true), the warp executes together with no divergence."
+  },
+  {
+    "id": 194,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 38,
+    "moodleNum": null,
+    "originBadge": "Final Sample #38",
+    "userExamAttempt": null,
+    "question": "A 2D CUDA block is configured as dim3(12,8). How many threads are in the block?",
+    "options": [
+      {
+        "id": "A",
+        "text": "20"
+      },
+      {
+        "id": "B",
+        "text": "144"
+      },
+      {
+        "id": "C",
+        "text": "96"
+      },
+      {
+        "id": "D",
+        "text": "64"
+      },
+      {
+        "id": "E",
+        "text": "48"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "96",
+    "explanation": "A 2D block configured with `dim3(12, 8)` has `blockDim.x * blockDim.y` = 12 * 8 = 96 threads."
+  },
+  {
+    "id": 195,
+    "part": "final_sample",
+    "topic": "GPU and CUDA",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 39,
+    "moodleNum": null,
+    "originBadge": "Final Sample #39",
+    "userExamAttempt": null,
+    "question": "A binary sum reduction starts with 32 partial values and halves their number each round. How many combining rounds are needed to obtain one value?",
+    "options": [
+      {
+        "id": "A",
+        "text": "5"
+      },
+      {
+        "id": "B",
+        "text": "4"
+      },
+      {
+        "id": "C",
+        "text": "16"
+      },
+      {
+        "id": "D",
+        "text": "6"
+      },
+      {
+        "id": "E",
+        "text": "32"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "5",
+    "explanation": "A tree-based binary reduction halves the active elements each round: 32 -> 16 -> 8 -> 4 -> 2 -> 1, requiring log2(32) = 5 rounds."
+  },
+  {
+    "id": 196,
+    "part": "final_sample",
+    "topic": "Spark",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 40,
+    "moodleNum": null,
+    "originBadge": "Final Sample #40",
+    "userExamAttempt": null,
+    "question": "The program defines r = sc.textFile(path), then s = r.filter(test), and finally n = s.count(). What normally causes the filter computation to execute?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The definition of test before reading any data"
+      },
+      {
+        "id": "B",
+        "text": "The existence of a file path string"
+      },
+      {
+        "id": "C",
+        "text": "The count action requesting its result"
+      },
+      {
+        "id": "D",
+        "text": "The assignment of the Python variable name s by itself"
+      },
+      {
+        "id": "E",
+        "text": "Only a later call to collect, even after count"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "The count action requesting its result",
+    "explanation": "Spark transformations like `textFile` and `filter` are lazily evaluated—they only build the RDD lineage DAG. Execution is triggered when an action such as `count()` requests a result."
+  },
+  {
+    "id": 197,
+    "part": "final_sample",
+    "topic": "Spark",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 41,
+    "moodleNum": null,
+    "originBadge": "Final Sample #41",
+    "userExamAttempt": null,
+    "question": "An RDD contains [1,2,3,4]. It is filtered with x % 2 == 0 and then mapped with x + 3. What values result, ignoring partition layout?",
+    "options": [
+      {
+        "id": "A",
+        "text": "[2,4]"
+      },
+      {
+        "id": "B",
+        "text": "[4,5,6,7]"
+      },
+      {
+        "id": "C",
+        "text": "[6,8]"
+      },
+      {
+        "id": "D",
+        "text": "[5,7]"
+      },
+      {
+        "id": "E",
+        "text": "[4,6]"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "[5,7]",
+    "explanation": "Applying `filter(x % 2 == 0)` to [1, 2, 3, 4] keeps the even numbers [2, 4]. Then `map(x + 3)` adds 3 to each, producing [5, 7]."
+  },
+  {
+    "id": 198,
+    "part": "final_sample",
+    "topic": "Spark",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 42,
+    "moodleNum": null,
+    "originBadge": "Final Sample #42",
+    "userExamAttempt": null,
+    "question": "A pair RDD contains (’p’,3), (’q’,5), (’p’,4), and (’q’,1). What does reduceByKey(addition) produce, ignoring output order?",
+    "options": [
+      {
+        "id": "A",
+        "text": "(’p’,13) only"
+      },
+      {
+        "id": "B",
+        "text": "(’p’,7) and (’q’,6)"
+      },
+      {
+        "id": "C",
+        "text": "(’p’,4) and (’q’,5)"
+      },
+      {
+        "id": "D",
+        "text": "(’p’,2) and (’q’,2)"
+      },
+      {
+        "id": "E",
+        "text": "(’p’,[3,4]) and (’q’,[5,1])"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "(’p’,7) and (’q’,6)",
+    "explanation": "`reduceByKey(addition)` aggregates values per key: for 'p', 3 + 4 = 7; for 'q', 5 + 1 = 6. Result: ('p', 7) and ('q', 6)."
+  },
+  {
+    "id": 199,
+    "part": "final_sample",
+    "topic": "Spark",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 43,
+    "moodleNum": null,
+    "originBadge": "Final Sample #43",
+    "userExamAttempt": null,
+    "question": "RDD A contains (’r’,2) and (’s’,8). RDD B contains (’r’,5) and (’t’,9). What does A.join(B) produce, ignoring output order?",
+    "options": [
+      {
+        "id": "A",
+        "text": "(’r’,(2,5)) and (’s’,(8,9))"
+      },
+      {
+        "id": "B",
+        "text": "(’r’,7) only"
+      },
+      {
+        "id": "C",
+        "text": "(’r’,(2,5)) only"
+      },
+      {
+        "id": "D",
+        "text": "(’r’,(5,2)) only"
+      },
+      {
+        "id": "E",
+        "text": "(’r’,(2,5)), (’s’,(8,0)), and (’t’,(0,9))"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "(’r’,(2,5)) only",
+    "explanation": "`A.join(B)` performs an inner join on matching keys. Only key 'r' exists in both A (('r', 2)) and B (('r', 5)), producing ('r', (2, 5)) only. Keys 's' and 't' have no match in the other RDD."
+  },
+  {
+    "id": 200,
+    "part": "final_sample",
+    "topic": "Spark",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 44,
+    "moodleNum": null,
+    "originBadge": "Final Sample #44",
+    "userExamAttempt": null,
+    "question": "A very large RDD should remain distributed, but the developer wants to inspect five records. Which action most directly limits the records returned to the driver?",
+    "options": [
+      {
+        "id": "A",
+        "text": "take(5)"
+      },
+      {
+        "id": "B",
+        "text": "cache()"
+      },
+      {
+        "id": "C",
+        "text": "repartition(5)"
+      },
+      {
+        "id": "D",
+        "text": "collect()"
+      },
+      {
+        "id": "E",
+        "text": "count()"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "take(5)",
+    "explanation": "`take(5)` is a Spark action that retrieves at most 5 elements to the driver without pulling the entire distributed RDD (unlike `collect()`, which can cause driver out-of-memory errors on large RDDs)."
+  },
+  {
+    "id": 201,
+    "part": "final_sample",
+    "topic": "Spark",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 45,
+    "moodleNum": null,
+    "originBadge": "Final Sample #45",
+    "userExamAttempt": null,
+    "question": "Which statement correctly distinguishes a Spark driver from executors in a cluster?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Executors build the user’s application while the driver stores every partition"
+      },
+      {
+        "id": "B",
+        "text": "The driver is simply another name for the first input partition"
+      },
+      {
+        "id": "C",
+        "text": "Each RDD replaces the need for both a driver and executors"
+      },
+      {
+        "id": "D",
+        "text": "The driver coordinates work; executors run tasks on partitions"
+      },
+      {
+        "id": "E",
+        "text": "The driver runs all partition tasks and executors only store source code"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "The driver coordinates work; executors run tasks on partitions",
+    "explanation": "In Spark's cluster architecture, the driver program hosts the SparkContext/SparkSession, builds the DAG, and schedules stages/tasks, while executors on worker nodes actually execute the tasks on data partitions."
+  },
+  {
+    "id": 202,
+    "part": "final_sample",
+    "topic": "Spark",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 46,
+    "moodleNum": null,
+    "originBadge": "Final Sample #46",
+    "userExamAttempt": null,
+    "question": "All Spark tasks need a small lookup table that they will only read. Which feature is intended to distribute this shared input efficiently?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A broadcast variable"
+      },
+      {
+        "id": "B",
+        "text": "collect() on every task’s input"
+      },
+      {
+        "id": "C",
+        "text": "An accumulator used as a mutable dictionary"
+      },
+      {
+        "id": "D",
+        "text": "A global Python variable updated independently by each task"
+      },
+      {
+        "id": "E",
+        "text": "A reduce action replacing the lookup table"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "A broadcast variable",
+    "explanation": "Broadcast variables cache a read-only copy of a small lookup dataset once per executor machine rather than serializing and sending it with every individual task."
+  },
+  {
+    "id": 203,
+    "part": "final_sample",
+    "topic": "Spark",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 47,
+    "moodleNum": null,
+    "originBadge": "Final Sample #47",
+    "userExamAttempt": null,
+    "question": "A data set has named columns, and the application needs SQL-style filtering and aggregation. Which Spark component directly supports this structured-data use?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The local[2] execution setting"
+      },
+      {
+        "id": "B",
+        "text": "Only the RDD lineage metadata"
+      },
+      {
+        "id": "C",
+        "text": "Only the accumulator API"
+      },
+      {
+        "id": "D",
+        "text": "Spark’s broadcast-variable mechanism"
+      },
+      {
+        "id": "E",
+        "text": "Spark SQL"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "Spark SQL",
+    "explanation": "Spark SQL provides DataFrames/Datasets and SQL queries specifically designed for structured data with named columns, schema awareness, and Catalyst query optimization."
+  },
+  {
+    "id": 204,
+    "part": "final_sample",
+    "topic": "PGAS and UPC",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 48,
+    "moodleNum": null,
+    "originBadge": "Final Sample #48",
+    "userExamAttempt": null,
+    "question": "A UPC program can address shared data associated with another thread. Which conclusion is valid?",
+    "options": [
+      {
+        "id": "A",
+        "text": "All shared accesses have the same cost regardless of affinity"
+      },
+      {
+        "id": "B",
+        "text": "Every shared object has a separate independent copy on every thread"
+      },
+      {
+        "id": "C",
+        "text": "A shared address can be dereferenced only by its affinity thread"
+      },
+      {
+        "id": "D",
+        "text": "Shared addressing removes all need for synchronization"
+      },
+      {
+        "id": "E",
+        "text": "The data is globally addressable, but remote and local access costs may differ"
+      }
+    ],
+    "correctOptionId": "E",
+    "correctAnswerText": "The data is globally addressable, but remote and local access costs may differ",
+    "explanation": "PGAS (Partitioned Global Address Space) in UPC provides a single global shared address space accessible by all threads, while retaining locality awareness: accesses to data with local affinity are fast, whereas remote accesses traverse the interconnect and have higher latency."
+  },
+  {
+    "id": 205,
+    "part": "final_sample",
+    "topic": "PGAS and UPC",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 49,
+    "moodleNum": null,
+    "originBadge": "Final Sample #49",
+    "userExamAttempt": null,
+    "question": "In UPC, a private variable is declared outside a shared-memory data structure. Different threads assign different values to their own instances. Which statement is correct?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Each thread retains its own private instance"
+      },
+      {
+        "id": "B",
+        "text": "Every write updates a replicated global shared variable"
+      },
+      {
+        "id": "C",
+        "text": "All instances become equal at the next barrier"
+      },
+      {
+        "id": "D",
+        "text": "The value written by the largest thread ID replaces every instance"
+      },
+      {
+        "id": "E",
+        "text": "The variable automatically acquires affinity to thread 0"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "Each thread retains its own private instance",
+    "explanation": "In UPC, ordinary variables declared without `shared` are private to each thread: every thread has its own independent instance in its private memory space."
+  },
+  {
+    "id": 206,
+    "part": "final_sample",
+    "topic": "PGAS and UPC",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 50,
+    "moodleNum": null,
+    "originBadge": "Final Sample #50",
+    "userExamAttempt": null,
+    "question": "With THREADS = 4 and shared [3] int a[24], which thread has affinity to a[14]?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Thread 1"
+      },
+      {
+        "id": "B",
+        "text": "Thread 2"
+      },
+      {
+        "id": "C",
+        "text": "Thread 0"
+      },
+      {
+        "id": "D",
+        "text": "Every thread"
+      },
+      {
+        "id": "E",
+        "text": "Thread 3"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "Thread 0",
+    "explanation": "For `shared [B] int a[N]` with block size B = 3 and THREADS = 4, element `a[i]` belongs to block `floor(i / B)`, mapped to thread `floor(i / B) % THREADS`. For `a[14]`: block = `floor(14 / 3) = 4`, and `4 % 4 = 0` -> Thread 0."
+  },
+  {
+    "id": 207,
+    "part": "final_sample",
+    "topic": "PGAS and UPC",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 51,
+    "moodleNum": null,
+    "originBadge": "Final Sample #51",
+    "userExamAttempt": null,
+    "question": "With THREADS = 3 and shared [2] int a[12], which indices have affinity to thread 1?",
+    "options": [
+      {
+        "id": "A",
+        "text": "0, 1, 6, 7"
+      },
+      {
+        "id": "B",
+        "text": "2, 3, 8, 9"
+      },
+      {
+        "id": "C",
+        "text": "1, 4, 7, 10"
+      },
+      {
+        "id": "D",
+        "text": "4, 5, 10, 11"
+      },
+      {
+        "id": "E",
+        "text": "2, 3, 4, 5"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "2, 3, 8, 9",
+    "explanation": "With `shared [2] int a[12]` (block size B = 2) and THREADS = 3: blocks are [0,1]->T0, [2,3]->T1, [4,5]->T2, [6,7]->T0, [8,9]->T1, [10,11]->T2. Thus thread 1 has affinity to indices 2, 3, 8, 9."
+  },
+  {
+    "id": 208,
+    "part": "final_sample",
+    "topic": "PGAS and UPC",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 52,
+    "moodleNum": null,
+    "originBadge": "Final Sample #52",
+    "userExamAttempt": null,
+    "question": "All UPC threads must participate in creating one shared allocation and receive a pointer to that same allocation. Which routine fits this requirement?",
+    "options": [
+      {
+        "id": "A",
+        "text": "malloc called independently by every thread"
+      },
+      {
+        "id": "B",
+        "text": "upc_memget"
+      },
+      {
+        "id": "C",
+        "text": "upc_all_alloc"
+      },
+      {
+        "id": "D",
+        "text": "upc_memput"
+      },
+      {
+        "id": "E",
+        "text": "upc_global_alloc called independently by every thread"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "upc_all_alloc",
+    "explanation": "`upc_all_alloc` is a collective shared-memory allocation routine called by all threads that creates a single shared object and returns a pointer to that same allocation to every thread (unlike `upc_global_alloc`, where each call allocates a separate object)."
+  },
+  {
+    "id": 209,
+    "part": "final_sample",
+    "topic": "PGAS and UPC",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 53,
+    "moodleNum": null,
+    "originBadge": "Final Sample #53",
+    "userExamAttempt": null,
+    "question": "A UPC thread needs to read a shared data block into a private work buffer, modify that buffer, and copy it back. Which transfer sequence matches these directions?",
+    "options": [
+      {
+        "id": "A",
+        "text": "upc_memget, then upc_memput"
+      },
+      {
+        "id": "B",
+        "text": "upc_memget, then upc_memget"
+      },
+      {
+        "id": "C",
+        "text": "upc_memput, then upc_memget"
+      },
+      {
+        "id": "D",
+        "text": "upc_memput, then upc_memput"
+      },
+      {
+        "id": "E",
+        "text": "upc_all_alloc, then upc_global_alloc"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "upc_memget, then upc_memput",
+    "explanation": "`upc_memget(dst_private, src_shared, size)` copies data from shared memory into a thread's private buffer, and `upc_memput(dst_shared, src_private, size)` writes the modified private buffer back to shared memory."
+  },
+  {
+    "id": 210,
+    "part": "final_sample",
+    "topic": "PGAS and UPC",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 54,
+    "moodleNum": null,
+    "originBadge": "Final Sample #54",
+    "userExamAttempt": null,
+    "question": "A UPC lock protects an update to a shared counter. Which behavior is guaranteed when all updating threads use that same lock correctly?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Every lock operation also completes a global barrier"
+      },
+      {
+        "id": "B",
+        "text": "The protected updates do not execute concurrently"
+      },
+      {
+        "id": "C",
+        "text": "Each thread gets a private copy of the shared counter"
+      },
+      {
+        "id": "D",
+        "text": "The counter’s affinity changes to each thread that locks it"
+      },
+      {
+        "id": "E",
+        "text": "The updates occur in increasing MYTHREAD order"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "The protected updates do not execute concurrently",
+    "explanation": "A UPC lock (`upc_lock` / `upc_unlock`) enforces mutual exclusion on the critical section: at most one thread can hold that lock at a time, so protected counter updates never execute concurrently."
+  },
+  {
+    "id": 211,
+    "part": "final_sample",
+    "topic": "Basic graph algorithms",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 55,
+    "moodleNum": null,
+    "originBadge": "Final Sample #55",
+    "userExamAttempt": null,
+    "question": "A graph application needs shortest-path distances between every pair of vertices, rather than from only one source. Which algorithm from the lecture directly addresses this task?",
+    "options": [
+      {
+        "id": "A",
+        "text": "A connected-components labeling algorithm"
+      },
+      {
+        "id": "B",
+        "text": "Floyd’s algorithm"
+      },
+      {
+        "id": "C",
+        "text": "A single run of Dijkstra from one fixed source"
+      },
+      {
+        "id": "D",
+        "text": "Prim’s algorithm"
+      },
+      {
+        "id": "E",
+        "text": "A Boolean transitive-closure calculation"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "Floyd’s algorithm",
+    "explanation": "Floyd's (Floyd–Warshall) all-pairs shortest paths algorithm computes shortest-path distances between every pair of vertices (u, v), whereas a single run of Dijkstra only computes distances from one source."
+  },
+  {
+    "id": 212,
+    "part": "final_sample",
+    "topic": "Basic graph algorithms",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 56,
+    "moodleNum": null,
+    "originBadge": "Final Sample #56",
+    "userExamAttempt": null,
+    "question": "A transitive-closure matrix marks vertex V as reachable from vertex U. What does this establish?",
+    "options": [
+      {
+        "id": "A",
+        "text": "There is a path from U to V"
+      },
+      {
+        "id": "B",
+        "text": "Every path from U must end at V"
+      },
+      {
+        "id": "C",
+        "text": "There must be a direct edge from U to V"
+      },
+      {
+        "id": "D",
+        "text": "U and V have exactly the same neighbors"
+      },
+      {
+        "id": "E",
+        "text": "The shortest path from U to V has weight 1"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "There is a path from U to V",
+    "explanation": "The transitive closure of a graph records reachability: an entry marking V reachable from U means there exists at least one directed/undirected path (of one or more edges) from U to V."
+  },
+  {
+    "id": 213,
+    "part": "final_sample",
+    "topic": "Basic graph algorithms",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 57,
+    "moodleNum": null,
+    "originBadge": "Final Sample #57",
+    "userExamAttempt": null,
+    "question": "For an unweighted undirected graph, its adjacency matrix has A[2][5] = 1. What must be true of A[5][2]?",
+    "options": [
+      {
+        "id": "A",
+        "text": "It is also 1"
+      },
+      {
+        "id": "B",
+        "text": "It must be 0"
+      },
+      {
+        "id": "C",
+        "text": "It can differ because the graph is undirected"
+      },
+      {
+        "id": "D",
+        "text": "It equals the number of vertices"
+      },
+      {
+        "id": "E",
+        "text": "It equals the length of the shortest path from 2 to 5"
+      }
+    ],
+    "correctOptionId": "A",
+    "correctAnswerText": "It is also 1",
+    "explanation": "An undirected graph has a symmetric adjacency matrix where A[u][v] = A[v][u] for all vertex pairs. Since A[2][5] = 1, A[5][2] must also equal 1."
+  },
+  {
+    "id": 214,
+    "part": "final_sample",
+    "topic": "Basic graph algorithms",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 58,
+    "moodleNum": null,
+    "originBadge": "Final Sample #58",
+    "userExamAttempt": null,
+    "question": "Three valid spanning trees of the same weighted graph have total edge weights 14, 11, and 16. Among these candidates, which is preferred by the minimum-spanning-tree objective?",
+    "options": [
+      {
+        "id": "A",
+        "text": "The tree with total weight 14"
+      },
+      {
+        "id": "B",
+        "text": "The tree with the greatest number of branches, regardless of weight"
+      },
+      {
+        "id": "C",
+        "text": "All three, because every spanning tree has equal cost"
+      },
+      {
+        "id": "D",
+        "text": "The tree with total weight 11"
+      },
+      {
+        "id": "E",
+        "text": "The tree with total weight 16"
+      }
+    ],
+    "correctOptionId": "D",
+    "correctAnswerText": "The tree with total weight 11",
+    "explanation": "A Minimum Spanning Tree (MST) minimizes the sum of edge weights among all valid spanning trees of a connected weighted graph. Between weights 14, 11, and 16, the minimum weight is 11."
+  },
+  {
+    "id": 215,
+    "part": "final_sample",
+    "topic": "Basic graph algorithms",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 59,
+    "moodleNum": null,
+    "originBadge": "Final Sample #59",
+    "userExamAttempt": null,
+    "question": "Two routes connect U to V. Route 1 has edge weights 4 and 5; route 2 has weights 2, 3, and 3. Which route has smaller total weight?",
+    "options": [
+      {
+        "id": "A",
+        "text": "Route 2, with total weight 6"
+      },
+      {
+        "id": "B",
+        "text": "Route 2, with total weight 8"
+      },
+      {
+        "id": "C",
+        "text": "Route 1, because it contains fewer edges regardless of weight"
+      },
+      {
+        "id": "D",
+        "text": "Route 1, with total weight 9"
+      },
+      {
+        "id": "E",
+        "text": "Both, because their total weights are equal"
+      }
+    ],
+    "correctOptionId": "B",
+    "correctAnswerText": "Route 2, with total weight 8",
+    "explanation": "Path weight is the sum of its edge weights, regardless of hop count. Route 1 has weight 4 + 5 = 9, while Route 2 has weight 2 + 3 + 3 = 8, so Route 2 has the smaller total weight (8)."
+  },
+  {
+    "id": 216,
+    "part": "final_sample",
+    "topic": "Basic graph algorithms",
+    "inSample": true,
+    "inExam": false,
+    "sampleNum": 60,
+    "moodleNum": null,
+    "originBadge": "Final Sample #60",
+    "userExamAttempt": null,
+    "question": "A weighted graph has nonnegative edge weights. The task is to find shortest-path distances from one chosen source to all reachable vertices. Which algorithm directly matches this task?",
+    "options": [
+      {
+        "id": "A",
+        "text": "An adjacency-list construction alone"
+      },
+      {
+        "id": "B",
+        "text": "A connected-components labeling algorithm"
+      },
+      {
+        "id": "C",
+        "text": "Dijkstra’s algorithm"
+      },
+      {
+        "id": "D",
+        "text": "Prim’s minimum spanning tree algorithm"
+      },
+      {
+        "id": "E",
+        "text": "A Boolean transitive-closure calculation"
+      }
+    ],
+    "correctOptionId": "C",
+    "correctAnswerText": "Dijkstra’s algorithm",
+    "explanation": "Dijkstra's algorithm solves the single-source shortest-path problem for graphs with nonnegative edge weights, computing minimum-weight distances from one chosen source vertex to all reachable vertices."
   }
 ]

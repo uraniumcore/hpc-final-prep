@@ -1,15 +1,15 @@
 // HPC Final Exam Prep Application
-// Features: 6 Question Pools (156 Deduplicated Questions), Past Exam Attempt Badges,
+// Features: 7 Question Pools (216 Deduplicated Questions), Past Exam Attempt Badges,
 // Question/Option Shuffling, Practice Mode, 50-Q Mock / Full Exam Simulator, Flashcards, Searchable Cheat Sheet
 
 (function() {
   'use strict';
 
-  const VALID_POOLS = ['all', 'midterm', 'endterm', 'exam_only', 'mistakes', 'samples'];
+  const VALID_POOLS = ['all', 'final_sample', 'midterm', 'endterm', 'exam_only', 'mistakes', 'samples'];
 
   // --- STATE ---
   const state = {
-    activePool: 'all', // 'all' | 'midterm' | 'endterm' | 'exam_only' | 'mistakes' | 'samples'
+    activePool: 'all', // 'all' | 'final_sample' | 'midterm' | 'endterm' | 'exam_only' | 'mistakes' | 'samples'
     allQuestions: [],
     questions: [],
     examQuestions: [],

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HPC Final Exam Prep • 156 Unique Questions Practice</title>
-  <meta name="description" content="High Performance Computing & Big Data Final Exam Practice Quiz with 156 Deduplicated Questions, Past Exam Mistakes Review, Question & Option Shuffling, and Moodle Exam Simulator.">
+  <title>HPC Final Exam Prep • 216 Unique Questions Practice</title>
+  <meta name="description" content="High Performance Computing & Big Data Final Exam Practice Quiz with 216 Deduplicated Questions, Final Sample Questions, Past Exam Mistakes Review, Question & Option Shuffling, and Moodle Exam Simulator.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
           <span class="logo-icon">⚡</span>
           <div>
             <h1>HPC Final Exam Prep</h1>
-            <div class="subtitle">High Performance Computing &amp; Big Data • 156 Unique Questions Pool (Midterm + Endterm Deduplicated)</div>
+            <div class="subtitle">High Performance Computing &amp; Big Data • 216 Unique Questions Pool (Midterm + Endterm + Final Sample Deduplicated)</div>
           </div>
         </div>
         <div class="header-actions">
@@ -33,8 +33,8 @@
       <div class="notice-banner">
         <div class="notice-icon">📢</div>
         <div>
-          <strong>Final Exam Bank Summary:</strong> 200 raw questions from 4 sources &rarr; 44 duplicates removed &rarr;
-          <strong>156 unique questions</strong> (78 Midterm + 78 Endterm, including <strong>56 real Moodle exam-exclusive questions</strong> and <strong>36 past mistakes</strong> to review).
+          <strong>Final Exam Bank Summary:</strong> 260 raw questions from 5 sources &rarr; 44 duplicates removed &rarr;
+          <strong>216 unique questions</strong> (78 Midterm + 78 Endterm + 60 Final Sample, including <strong>56 real Moodle exam-exclusive questions</strong> and <strong>36 past mistakes</strong> to review).
         </div>
       </div>
 
@@ -44,8 +44,11 @@
           <span>📚</span> Question Pool:
         </div>
         <div class="pool-buttons" id="poolSelectorButtons">
-          <button class="pool-btn active" data-pool="all" title="All 156 deduplicated questions across Midterm & Endterm">
-            🌟 All Final (156)
+          <button class="pool-btn active" data-pool="all" title="All 216 deduplicated questions across Midterm, Endterm & Final Sample">
+            🌟 All Final (216)
+          </button>
+          <button class="pool-btn" data-pool="final_sample" title="60 official Final Sample student questions (HPC_Final_60_Student_Questions.pdf)">
+            🎯 Final Sample (60)
           </button>
           <button class="pool-btn" data-pool="midterm" title="50 Midterm Sample + 28 Midterm Exam-Only questions">
             📘 Midterm All (78)
@@ -59,8 +62,8 @@
           <button class="pool-btn" data-pool="mistakes" title="36 questions you missed on your Midterm (15) and Endterm (21)">
             ❌ My Mistakes (36)
           </button>
-          <button class="pool-btn" data-pool="samples" title="100 Official Sample questions from the lecturer's Midterm & Endterm PDFs">
-            🏛️ Official Samples (100)
+          <button class="pool-btn" data-pool="samples" title="160 Official Sample questions from the lecturer's Midterm, Endterm & Final Sample PDFs">
+            🏛️ Official Samples (160)
           </button>
         </div>
       </div>
@@ -89,7 +92,7 @@
           <button id="reshuffleBtn" class="btn-sm btn-accent" title="Reshuffle current questions and choices">
             <span>🎲</span> Reshuffle Now
           </button>
-          <button id="originalOrderBtn" class="btn-sm" title="Revert to original sequential order (1–156)">
+          <button id="originalOrderBtn" class="btn-sm" title="Revert to original sequential order (1–216)">
             <span>📄</span> Original Order
           </button>
         </div>
@@ -109,7 +112,7 @@
 
         <div class="question-meta">
           <div class="meta-badges">
-            <span id="practiceCounterBadge" class="badge badge-source">Question 1 / 156</span>
+            <span id="practiceCounterBadge" class="badge badge-source">Question 1 / 216</span>
             <span id="practiceTopicBadge" class="badge badge-topic">Topic</span>
             <span id="practiceOriginalBadge" class="badge badge-source">Origin</span>
             <span id="practiceExamStatusBadge" class="badge hidden"></span>
@@ -225,7 +228,7 @@
       <div class="practice-container">
         <div class="question-meta">
           <div class="meta-badges">
-            <span id="flashcardCounterBadge" class="badge badge-source">Card 1 / 156</span>
+            <span id="flashcardCounterBadge" class="badge badge-source">Card 1 / 216</span>
             <span id="flashcardTopicBadge" class="badge badge-topic">Topic</span>
             <span id="flashcardOriginalBadge" class="badge badge-source">Origin</span>
             <span id="flashcardExamStatusBadge" class="badge hidden"></span>
@@ -261,7 +264,7 @@
         <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search questions, options, topics, keywords (e.g. CUDA, Spark, upc_memget, Dijkstra, Amdahl)...">
       </div>
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem;">
-        <span id="listStatsText" style="font-size: 0.9rem; color: var(--text-secondary);">Showing 156 questions</span>
+        <span id="listStatsText" style="font-size: 0.9rem; color: var(--text-secondary);">Showing 216 questions</span>
         <button id="toggleAllAnswersBtn" class="btn-sm">Show All Answers</button>
       </div>
       <div id="questionsListContainer">
