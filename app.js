@@ -24,6 +24,9 @@
     starredIds: new Set(),
     practiceAnswers: {}, // { [questionId]: { selectedText: string, isCorrect: boolean } }
     examAnswers: {}, // { [questionId]: selectedText }
+    mistakeLog: {}, // { [questionId]: { id, selectedText, source, wrongCount, lastWrongAt } }
+    lastExamMissed: [], // [{ id, selectedText }]
+    exportScope: 'all', // 'all' | 'last_exam'
     examActive: false,
     examTimeRemaining: 45 * 60,
     examTimerId: null,
@@ -193,6 +196,14 @@
       if (savedExamMode && ['50mock', 'full'].includes(savedExamMode)) {
         state.examMode = savedExamMode;
       }
+      const savedMistakeLog = localStorage.getItem('hpc_final_mistake_log');
+      if (savedMistakeLog) {
+        state.mistakeLog = JSON.parse(savedMistakeLog);
+      }
+      const savedLastExamMissed = localStorage.getItem('hpc_final_last_exam_missed');
+      if (savedLastExamMissed) {
+        state.lastExamMissed = JSON.parse(savedLastExamMissed);
+      }
     } catch (e) {
       console.warn('Could not read localStorage', e);
     }
@@ -206,6 +217,8 @@
       localStorage.setItem('hpc_final_practice_answers', JSON.stringify(state.practiceAnswers));
       localStorage.setItem('hpc_final_active_pool', state.activePool);
       localStorage.setItem('hpc_final_exam_mode', state.examMode);
+      localStorage.setItem('hpc_final_mistake_log', JSON.stringify(state.mistakeLog));
+      localStorage.setItem('hpc_final_last_exam_missed', JSON.stringify(state.lastExamMissed));
     } catch (e) {
       console.warn('Could not save to localStorage', e);
     }
@@ -246,6 +259,7 @@
     renderTopicFilters();
     applyFilteringAndShuffling();
     updateStarredCount();
+    updateMistakeCountUI();
     updateThemeUI();
     updateSoundUI();
 
@@ -488,7 +502,11 @@
       selectedText,
       isCorrect
     };
-    savePersistedState();
+    if (!isCorrect) {
+      recordMistake(q, selectedText, 'Practice');
+    } else {
+      savePersistedState();
+    }
     playSound(isCorrect ? 'correct' : 'wrong');
     renderCurrentPracticeQuestion();
   }
@@ -692,6 +710,7 @@
     let score = 0;
     const total = state.examQuestions.length;
     const topicStats = {};
+    const examMissedList = [];
 
     state.examQuestions.forEach(q => {
       if (!topicStats[q.topic]) {
@@ -703,8 +722,16 @@
       if (selected === q.correctAnswerText) {
         score++;
         topicStats[q.topic].correct++;
+      } else {
+        const chosenText = selected || '(No answer selected / Skipped)';
+        examMissedList.push({ id: q.id, selectedText: chosenText });
+        recordMistake(q, chosenText, 'Exam', true);
       }
     });
+
+    state.lastExamMissed = examMissedList;
+    savePersistedState();
+    updateMistakeCountUI();
 
     const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
 
@@ -982,6 +1009,164 @@
     if (el) el.textContent = state.starredIds.size;
   }
 
+  // --- MISTAKE COLLECTOR & EXPORT ---
+  function getAllQuestionsLookup() {
+    const bank = (typeof FINAL_QUESTIONS !== 'undefined' && Array.isArray(FINAL_QUESTIONS))
+      ? FINAL_QUESTIONS
+      : ((typeof QUESTIONS_DATA !== 'undefined' && Array.isArray(QUESTIONS_DATA)) ? QUESTIONS_DATA : []);
+    const map = new Map();
+    bank.forEach(q => map.set(q.id, q));
+    return map;
+  }
+
+  function recordMistake(q, selectedText, source, deferSave = false) {
+    if (!q) return;
+    const prev = state.mistakeLog[q.id];
+    state.mistakeLog[q.id] = {
+      id: q.id,
+      selectedText: selectedText || '(No answer selected / Skipped)',
+      source: source || 'Practice',
+      wrongCount: prev ? (prev.wrongCount || 1) + 1 : 1,
+      lastWrongAt: new Date().toISOString()
+    };
+    if (!deferSave) {
+      savePersistedState();
+      updateMistakeCountUI();
+    }
+  }
+
+  function updateMistakeCountUI() {
+    const count = Object.keys(state.mistakeLog).length;
+    const countEl = document.getElementById('mistakeLogCount');
+    const btn = document.getElementById('openMistakeExportBtn');
+    if (countEl) countEl.textContent = count;
+    if (btn) btn.classList.toggle('has-mistakes', count > 0);
+  }
+
+  function getExportEntries(scope) {
+    const lookup = getAllQuestionsLookup();
+    if (scope === 'last_exam') {
+      return state.lastExamMissed
+        .map(entry => ({
+          q: lookup.get(entry.id),
+          selectedText: entry.selectedText,
+          source: 'Exam',
+          wrongCount: (state.mistakeLog[entry.id] && state.mistakeLog[entry.id].wrongCount) || 1
+        }))
+        .filter(item => Boolean(item.q));
+    }
+
+    return Object.values(state.mistakeLog)
+      .sort((a, b) => new Date(b.lastWrongAt || 0) - new Date(a.lastWrongAt || 0))
+      .map(entry => ({
+        q: lookup.get(entry.id),
+        selectedText: entry.selectedText,
+        source: entry.source || 'Practice',
+        wrongCount: entry.wrongCount || 1
+      }))
+      .filter(item => Boolean(item.q));
+  }
+
+  function buildMistakeExportMarkdown(scope) {
+    const entries = getExportEntries(scope);
+    if (entries.length === 0) {
+      return 'Пока нет ни одной зафиксированной ошибки в этом списке.\n\nРеши несколько вопросов в Practice или Exam Simulation — все неправильные ответы автоматически соберутся здесь для разбора!';
+    }
+
+    const scopeLabel = scope === 'last_exam' ? 'Last Exam Simulation' : 'All Accumulated Mistakes';
+    const lines = [
+      'Разбери подробно каждую мою ошибку ниже: почему правильный ответ верный, почему мой ответ ошибочный и на какую формулу/концепт обратить внимание.',
+      '',
+      `Всего ошибок: ${entries.length} (${scopeLabel})`,
+      ''
+    ];
+
+    entries.forEach((item, idx) => {
+      const q = item.q;
+      const origin = getOriginBadgeText(q);
+      const repeatNote = item.wrongCount > 1 ? ` • Ошибок: ${item.wrongCount}x` : '';
+      lines.push('---');
+      lines.push('');
+      lines.push(`### ${idx + 1}. [ID #${q.id}] ${q.topic} • ${origin} (${item.source}${repeatNote})`);
+      lines.push('');
+      lines.push('**Вопрос:**');
+      lines.push(q.question);
+      lines.push('');
+      lines.push('**Варианты:**');
+      q.options.forEach(opt => {
+        lines.push(`- ${opt.id}. ${opt.text}`);
+      });
+      lines.push('');
+      lines.push(`- **❌ Мой ответ:** ${item.selectedText}`);
+      lines.push(`- **✅ Правильный ответ:** ${q.correctOptionId}. ${q.correctAnswerText}`);
+      lines.push('');
+    });
+
+    return lines.join('\n');
+  }
+
+  let clearConfirmTimeoutId = null;
+  let clearConfirmArmed = false;
+
+  function resetClearConfirmButton() {
+    clearConfirmArmed = false;
+    clearTimeout(clearConfirmTimeoutId);
+    const clearBtn = document.getElementById('clearMistakeLogBtn');
+    if (clearBtn) clearBtn.textContent = '🗑️ Clear Log';
+  }
+
+  function renderMistakeExportModal() {
+    const allEntries = getExportEntries('all');
+    const examEntries = getExportEntries('last_exam');
+
+    if (state.exportScope === 'last_exam' && examEntries.length === 0) {
+      state.exportScope = 'all';
+    }
+
+    const activeEntries = state.exportScope === 'last_exam' ? examEntries : allEntries;
+    const topicCount = new Set(activeEntries.map(e => e.q.topic)).size;
+
+    document.getElementById('scopeAllCount').textContent = allEntries.length;
+    document.getElementById('scopeExamCount').textContent = examEntries.length;
+
+    const scopeExamBtn = document.getElementById('scopeLastExamBtn');
+    scopeExamBtn.disabled = examEntries.length === 0;
+    scopeExamBtn.style.opacity = examEntries.length === 0 ? '0.45' : '1';
+
+    document.querySelectorAll('#exportScopePills .filter-pill').forEach(pill => {
+      pill.classList.toggle('active', pill.dataset.scope === state.exportScope);
+    });
+
+    const summaryEl = document.getElementById('mistakeExportSummary');
+    if (activeEntries.length === 0) {
+      summaryEl.textContent = '0 wrong answers logged yet. Answer questions in Practice or Exam mode to collect mistakes.';
+    } else {
+      summaryEl.textContent = `Ready to export ${activeEntries.length} wrong question(s) across ${topicCount} topic(s).`;
+    }
+
+    document.getElementById('mistakeExportPreview').value = buildMistakeExportMarkdown(state.exportScope);
+
+    const hasItems = activeEntries.length > 0;
+    document.getElementById('copyMistakeExportBtn').disabled = !hasItems;
+    document.getElementById('downloadMistakeExportBtn').disabled = !hasItems;
+    document.getElementById('practiceExportedMistakesBtn').disabled = !hasItems;
+    document.getElementById('clearMistakeLogBtn').disabled = allEntries.length === 0;
+    resetClearConfirmButton();
+  }
+
+  function openMistakeExportModal(preferredScope) {
+    if (preferredScope) {
+      state.exportScope = preferredScope;
+    }
+    renderMistakeExportModal();
+    document.getElementById('mistakeExportModal').classList.remove('hidden');
+  }
+
+  function closeMistakeExportModal() {
+    resetClearConfirmButton();
+    document.getElementById('mistakeExportModal').classList.add('hidden');
+  }
+
   function updateThemeUI() {
     const btn = document.getElementById('themeToggleBtn');
     btn.textContent = state.theme === 'dark' ? '☀️' : '🌙';
@@ -1208,8 +1393,124 @@
       }
     });
 
+    document.getElementById('exportExamMistakesBtn').addEventListener('click', () => {
+      playSound('click');
+      openMistakeExportModal(state.lastExamMissed.length > 0 ? 'last_exam' : 'all');
+    });
+
     document.getElementById('backToPracticeBtn').addEventListener('click', () => {
       document.querySelector('.tab-btn[data-tab="practice"]').click();
+    });
+
+    // Mistake Collector & Export controls
+    document.getElementById('openMistakeExportBtn').addEventListener('click', () => {
+      playSound('click');
+      openMistakeExportModal('all');
+    });
+
+    document.getElementById('closeMistakeExportBtn').addEventListener('click', () => {
+      playSound('click');
+      closeMistakeExportModal();
+    });
+
+    document.getElementById('mistakeExportModal').addEventListener('click', (e) => {
+      if (e.target.id === 'mistakeExportModal') {
+        closeMistakeExportModal();
+      }
+    });
+
+    document.querySelectorAll('#exportScopePills .filter-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        if (pill.disabled) return;
+        playSound('click');
+        state.exportScope = pill.dataset.scope;
+        renderMistakeExportModal();
+      });
+    });
+
+    document.getElementById('copyMistakeExportBtn').addEventListener('click', async () => {
+      const textarea = document.getElementById('mistakeExportPreview');
+      const copyBtn = document.getElementById('copyMistakeExportBtn');
+      const text = textarea.value;
+      if (!text) return;
+
+      let copied = false;
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(text);
+          copied = true;
+        }
+      } catch (err) {
+        copied = false;
+      }
+
+      if (!copied) {
+        textarea.focus();
+        textarea.select();
+        try {
+          copied = document.execCommand('copy');
+        } catch (err) {
+          copied = false;
+        }
+      }
+
+      if (copied) {
+        playSound('correct');
+        copyBtn.textContent = '✓ Copied for Chat!';
+        setTimeout(() => {
+          copyBtn.textContent = '📋 Copy for Breakdown';
+        }, 2000);
+      }
+    });
+
+    document.getElementById('downloadMistakeExportBtn').addEventListener('click', () => {
+      const text = document.getElementById('mistakeExportPreview').value;
+      if (!text) return;
+      playSound('click');
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `hpc-mistakes-${dateStr}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('practiceExportedMistakesBtn').addEventListener('click', () => {
+      const entries = getExportEntries(state.exportScope);
+      if (entries.length === 0) return;
+      playSound('click');
+      const prepared = entries.map(item => {
+        delete state.practiceAnswers[item.q.id];
+        return {
+          ...item.q,
+          currentOptions: prepareQuestionOptions(item.q, state.shuffleOptions)
+        };
+      });
+      savePersistedState();
+      state.questions = prepared;
+      state.currentPracticeIndex = 0;
+      closeMistakeExportModal();
+      document.querySelector('.tab-btn[data-tab="practice"]').click();
+    });
+
+    document.getElementById('clearMistakeLogBtn').addEventListener('click', () => {
+      const clearBtn = document.getElementById('clearMistakeLogBtn');
+      if (!clearConfirmArmed) {
+        clearConfirmArmed = true;
+        clearBtn.textContent = '⚠️ Tap Again to Clear';
+        clearConfirmTimeoutId = setTimeout(resetClearConfirmButton, 4000);
+        return;
+      }
+      playSound('click');
+      state.mistakeLog = {};
+      state.lastExamMissed = [];
+      savePersistedState();
+      updateMistakeCountUI();
+      renderMistakeExportModal();
     });
 
     // Flashcard controls
@@ -1257,7 +1558,16 @@
 
     // Global keyboard shortcuts
     window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const exportModal = document.getElementById('mistakeExportModal');
+        if (exportModal && !exportModal.classList.contains('hidden')) {
+          closeMistakeExportModal();
+          return;
+        }
+      }
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      const exportModal = document.getElementById('mistakeExportModal');
+      if (exportModal && !exportModal.classList.contains('hidden')) return;
 
       const key = e.key;
 

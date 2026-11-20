@@ -54,6 +54,9 @@
             </div>
           </div>
           <div class="header-actions">
+            <button id="openMistakeExportBtn" class="btn-mistakes-export" title="View & Export Your Wrong Answers for Detailed Breakdown" aria-label="Export Wrong Answers">
+              📝 Mistakes (<span id="mistakeLogCount">0</span>)
+            </button>
             <button id="soundToggleBtn" class="btn-icon" title="Toggle Sound (Web Audio)" aria-label="Toggle Sound">🔊</button>
             <button id="themeToggleBtn" class="btn-icon" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">🌙</button>
             <button id="resetProgressBtn" class="btn-icon" title="Reset Answers & History" aria-label="Reset Progress">🗑️</button>
@@ -247,9 +250,10 @@
           <!-- Breakdown per topic inserted here -->
         </div>
 
-        <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-top: 2rem;">
+        <div class="score-actions">
           <button id="retakeExamBtn" class="btn-nav btn-accent">🔄 New Mock / Retake Exam</button>
           <button id="practiceMissedBtn" class="btn-nav">❌ Practice Missed Only</button>
+          <button id="exportExamMistakesBtn" class="btn-nav">📤 Export Missed for Review</button>
           <button id="backToPracticeBtn" class="btn-nav">🎯 Return to Practice Mode</button>
         </div>
       </div>
@@ -318,6 +322,33 @@
       <div class="modal-actions">
         <button id="modalCancelBtn" class="btn-nav">Cancel</button>
         <button id="modalConfirmBtn" class="btn-nav btn-accent">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mistake Collector & Export Modal -->
+  <div id="mistakeExportModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="mistakeModalTitle">
+    <div class="modal-content modal-export">
+      <div class="modal-export-header">
+        <div>
+          <h3 id="mistakeModalTitle" class="modal-title" style="margin-bottom: 0.2rem;">📝 Mistake Collector &amp; Export</h3>
+          <p id="mistakeExportSummary" class="modal-export-sub">0 wrong answers logged yet.</p>
+        </div>
+        <button id="closeMistakeExportBtn" class="btn-icon" aria-label="Close Export Modal">✕</button>
+      </div>
+
+      <div class="export-scope-pills" id="exportScopePills">
+        <button class="filter-pill active" data-scope="all">All Logged Mistakes (<span id="scopeAllCount">0</span>)</button>
+        <button class="filter-pill" data-scope="last_exam" id="scopeLastExamBtn">Last Exam Missed (<span id="scopeExamCount">0</span>)</button>
+      </div>
+
+      <textarea id="mistakeExportPreview" class="export-textarea" readonly aria-label="Exported mistakes markdown"></textarea>
+
+      <div class="export-actions-grid">
+        <button id="copyMistakeExportBtn" class="btn-nav btn-accent">📋 Copy for Breakdown</button>
+        <button id="downloadMistakeExportBtn" class="btn-nav">⬇️ Download .md</button>
+        <button id="practiceExportedMistakesBtn" class="btn-nav">🎯 Practice These</button>
+        <button id="clearMistakeLogBtn" class="btn-nav btn-danger-outline">🗑️ Clear Log</button>
       </div>
     </div>
   </div>
